@@ -1,0 +1,25 @@
+var b: boolean;
+    t: boolean;
+    f: boolean;
+    i: int;
+begin
+    t := true;
+    f :=false;
+    b := t && f;
+    if b then write 1 else write 0; // f
+    b := t && t;
+    if b then write 1 else write 0; // t
+    b := f || f;
+    if b then write 1 else write 0; // f
+    b := t || f;
+    if b then write 1 else write 0; // t
+    b := !t;
+    if b then write 1 else write 0; // f
+    b := !f;
+    if b then write 1 else write 0; // t
+    // If both arguments are evaluated the following crashes
+    // but if a conditional "or" is used it doesn't
+    i := 0;
+    b := (i = 0) || (i/i = 1);
+    if b then write 1 else write 0 // t
+end

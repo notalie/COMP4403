@@ -1,0 +1,8 @@
+Compiling test-basee-forward.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+-5
+
+Terminated
+No errors detected.

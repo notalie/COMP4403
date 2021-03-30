@@ -1,0 +1,14 @@
+Compiling test-baseh-ref-before-assign.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+     7             write local;
+******                   ^ Fatal: variable accessed before assignment
+PROC recur : level 3
+	local = unassigned
+PROC tl : level 2
+	top = unassigned
+PROC <main> : level 1
+	glob = unassigned
+
+1 error detected.

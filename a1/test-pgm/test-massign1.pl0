@@ -1,0 +1,11 @@
+var
+  x: int;
+  y : int;
+begin
+  x := 102 | y := 101;
+  write x;   // 102
+  write y;   // 101
+  x := y | y := x;
+  write x;   // 101
+  write y    // 102
+end

@@ -1,0 +1,11 @@
+Compiling test-massign5.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+101
+102
+203
+1
+
+Terminated
+No errors detected.

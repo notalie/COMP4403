@@ -1,0 +1,8 @@
+Compiling test-based-write1.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+1
+
+Terminated
+No errors detected.

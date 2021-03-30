@@ -1,0 +1,7 @@
+Compiling test-skip.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+
+Terminated
+No errors detected.

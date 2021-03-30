@@ -1,0 +1,9 @@
+Compiling test-caseb-var-label.pl0
+     4   when y do skip
+******          ^  Error: Parse error, expecting ':' in Case Branch
+Parsing complete
+     4   when y do skip
+******        ^  Error: Constant identifier expected
+******        ^  Error: case label type does not match case expression type
+Static semantic analysis complete
+3 errors detected.

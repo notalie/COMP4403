@@ -1,0 +1,22 @@
+var
+  x: int;
+  y : int;
+
+procedure p() =
+  begin
+    if y > 101 then
+     begin
+      x := y-1 | y := x-3;
+      write x;  // 103 then 101
+      write y;  // 102 then 100
+      call p()
+     end
+    else
+     skip
+  end; // p
+begin
+  x := 105 | y := 104;
+  write x;  // 105;
+  write y;  // 104;
+  call p()
+end

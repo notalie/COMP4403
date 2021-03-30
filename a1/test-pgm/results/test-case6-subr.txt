@@ -1,0 +1,8 @@
+Compiling test-case6-subr.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+98
+
+Terminated
+No errors detected.

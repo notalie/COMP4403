@@ -1,0 +1,9 @@
+Compiling test-massign4-syn-err.pl0
+     5   x : = y;           // erroneous blank between : and =
+******     ^  Error: Parse error, expecting ':=' in Assignment
+******       ^  Error: '=' cannot start RelCondition
+     6   x := y || y := x;  // error || should be |
+******          ^  Error: Parse error, expecting 'end' in Compound Statement
+Parsing complete
+Static semantic analysis complete
+3 errors detected.

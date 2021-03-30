@@ -1,0 +1,14 @@
+Compiling test-logopx.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+0
+1
+0
+1
+0
+1
+1
+
+Terminated
+No errors detected.

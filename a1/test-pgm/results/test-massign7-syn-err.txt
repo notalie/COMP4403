@@ -1,0 +1,7 @@
+Compiling test-massign7-syn-err.pl0
+     5     x+1 := y | 2 := x;
+******      ^  Error: Parse error, expecting ':=' in Assignment
+******         ^  Error: Parse error, expecting 'end' in Compound Statement
+Parsing complete
+Static semantic analysis complete
+2 errors detected.

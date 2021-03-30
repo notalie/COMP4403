@@ -1,0 +1,8 @@
+Compiling test-base-proc-C-fact.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+15
+
+Terminated
+No errors detected.

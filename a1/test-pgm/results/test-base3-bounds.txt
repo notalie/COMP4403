@@ -1,0 +1,14 @@
+Compiling test-base3-bounds.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+102
+101
+100
+    11   x := 99;  // out of bounds
+******        ^ Fatal: bounds check failed at line 10: 99 not in int[100..102]
+PROC <main> : level 1
+	x = 100
+	y = 102
+
+1 error detected.

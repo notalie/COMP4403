@@ -1,0 +1,6 @@
+var y : int;
+begin
+  case 1 of
+  when y do skip
+  end
+end

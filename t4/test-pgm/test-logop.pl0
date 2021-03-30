@@ -1,0 +1,26 @@
+var i: int;
+    b: boolean;
+begin
+    b := true;
+    if ! b then write 996 else write 106;  // writes 106
+    b := 1 < 0 || 0 < 1;
+    if b then write 105 else write 995;  // writes 105
+    b := 1 < 0 || 1 < -1;
+    if b then write 994 else write 104;  // writes 104
+    b := 1 < 0 && 0 < 1;
+    if b then write 993 else write 103;  // writes 103
+    b := 0 < 1 && 1 < -1;
+    if b then write 992 else write 102;  // writes 102
+    b := 0 < 1 && 1 < 2;
+    if b then write 101 else write 991;   // writes 101
+    i := 10000;
+    // This loops looks for a stack overflow 
+    // due to junk left on the stack during logical and evaluation
+    // This is only relevant when we get to code generation.
+    while 0 < i && i <= 10000 do
+      begin
+        // write i;
+        i := i-1
+      end;
+    write 100
+end

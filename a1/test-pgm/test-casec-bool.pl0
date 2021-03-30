@@ -1,0 +1,12 @@
+var
+  b : boolean;
+  go : boolean;
+begin
+  b := true;
+  go := true;
+  while go do
+    case b of
+    when true: write 101; b := false
+    when false: write 100; go := false
+    end
+end

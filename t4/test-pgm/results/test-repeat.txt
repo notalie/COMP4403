@@ -1,0 +1,11 @@
+Compiling test-repeat.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+104
+103
+102
+101
+
+Terminated
+No errors detected.

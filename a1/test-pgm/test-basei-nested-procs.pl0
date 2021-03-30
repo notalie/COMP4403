@@ -1,0 +1,31 @@
+// main program variables
+var x: int; // At level 1 (main program)
+    y: int; // At level 1 (main program)
+procedure p() =
+    // local variable to p
+    var y: int; // At level 2 (p)
+    procedure q() =
+        // local variable to q
+        var z: int; // At level 3 (q)
+        begin
+            z := y;
+            x := z
+        end;
+    begin // p
+        if x = 0 then
+          begin
+            x := 1;
+            y := 10;
+            call p()
+          end
+        else
+          begin
+            y := 20;
+            call q()
+          end
+    end; // p
+begin // main program
+    x := 0;
+    y := 50;
+    call p()
+end

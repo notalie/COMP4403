@@ -1,0 +1,21 @@
+Compiling test-base9-proc.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+2
+    10         y := z/0      // execution ends with divide by 0
+******                ^ Fatal: Division by zero
+PROC r : level 3
+	z = 0
+PROC p : level 2
+	y = 0
+PROC q : level 2
+PROC r : level 3
+	z = 1
+PROC p : level 2
+	y = 1
+PROC q : level 2
+PROC <main> : level 1
+	x = 1
+
+1 error detected.

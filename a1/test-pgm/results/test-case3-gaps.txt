@@ -1,0 +1,14 @@
+Compiling test-case3-gaps.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+6
+0
+4
+0
+0
+1
+0
+
+Terminated
+No errors detected.

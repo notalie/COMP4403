@@ -1,0 +1,393 @@
+<html>
+<head>
+<title>COMP4403/7402 Compiling and Running PL0 Compiler</title>
+</head>
+
+<!--<p> <FORM><INPUT TYPE="button" VALUE="Back" onClick="history.go(-1);return true;"></FORM>-->
+
+<body>
+<link type="text/css" rel="stylesheet" href="style.css">
+
+<p>
+Last updated: <LASTUPDATED>Mon Mar  8 14:48:39 AEST 2021</LASTUPDATED>.
+
+<h1>Compiling the PL0 compiler</h1>
+
+<font color="blue">Sections in blue refer to the compilers used for
+  assignments 2 and 3, so ignore the blue parts when doing tutorial 4 and assignment 1.</font>
+
+
+<h2>Running the PL0 compiler under IntelliJ</h2>
+
+<h3>Importing the Project</h3>
+<ul>
+  <li>Download the .zip file containing the compiler from the course web page
+  <li>Unzip the assignment .zip file to create a directory containing the compiler
+    as a IntelliJ project
+  <li>Start IntelliJ Idea -- version 2018-3 (or later) is required to use the supplied
+    run configurations
+  <li>File > Open
+  <li>Navigate to the unzipped directory containing the compiler and select the directory
+  <li>Open
+  <li>If there is a bar at the top of the code stating "Project SDJ is not defined" then select "Setup SDK"
+    (on the right of the bar). That will display your available SDKs.
+    Select one that is at least Java 1.8 (and Project language level 8) and select OK.
+    [This is required if the SDK you are using is different to the one I'm using.]
+</ul>
+
+<h3>Run Configurations Provided</h3>
+
+The compiler IntelliJ project comes with two run configurations.
+<ul>
+  <li>"PL0_RD" <font color="blue">("PL0_LALR")</font>
+    runs the compiler on whatever file is currently displayed in IntelliJ.
+    It is recommended that this be a PL0 file -- if it is a Java file the PL0 compiler
+    will still attempt to parse it but many error messages will ensue as its not valid PL0.
+    You may want to edit this configuration to change the program parameters,
+    e.g. to add "-s" to turn off static checking (and everything beyond that)
+    or add "-d" to turn on debugging output.
+  <li>"Test_RD" <font color="blue">("Test_LALR")</font>
+    runs the PL0 compiler on every test case and compares the output with that expected.
+    Ticked test cases succeeded and crossed test cases failed.
+</ul>
+
+<!--
+<h3>Run Configurations</h3>
+Unlike Eclipse, IntelliJ does not have an option for using the selected filename as input to the run configuration.
+The <code>Context Run</code> plugin gives this functionality.
+<ul>
+    <li>File > Settings > Plugins > Browse repositories > Context Run (install and restart intellij)
+    <li>Run > Edit Configurations > Plus Button > ContextRun.
+    <li>Select the main class using the drop down on the right (should be pl0.PL0_RD or pl0.PL0_LALR).
+    <li>Put $FilePath$ into the program arguments (you can prefix that
+  by options like "-s" and/or "-d" -- see below)
+    <li>Select module in the classpath of module drop down (should be only be the one module)
+    <li>Give the configuration a name like "Compile selected PL0 file"
+    <li>Test it out by clicking on test-base0-abs.pl0 in the project window, selecting the configuration in the top configuration dropdown and hitting Run
+</ul>
+-->
+
+<h3>Compiler options</h3>
+
+If a compilation of a PL0 program is successful, 
+the compiler normally runs the interpreter to execute the generated code.
+However there are a number of compiler parameters that can change its
+behaviour.
+<ul>
+    <li>Usage: java pl0.PL0_RD [-dsi<font color="blue">gevt</font>h] <i>filename.pl0</i></li>
+    <li>  -d  =  turn debug messages on (verbose trace of parsing, etc.)
+    <li>  -s  =  turn static checking off (useful for debugging the parser)</li>
+    <li>  -i  =  turn interpretation off</li>
+    <font color="blue">
+        <li>  -g  =  turn code generation off</li>
+        <li>  -e  =  turn code execution off</li>
+        <li>  -v  =  output of generated code</li>
+        <li>  -t  =  trace execution of generated code (verbose)</li>
+    </font>
+    <li>  -h  =  output this usage information</li>
+    <li> <i>filename.pl0</i> file to be compiled.</li>
+</ul>
+<!--The compiler switches are also documented at the start of PL0_RD.java 
+or <font color="blue"> PL0_LALR.java.</font>-->
+<p>
+  The <b>-d</b> option gives a blow-by-blow (very verbose) trace
+  of the recursive descent parsing process (for assignment 1 compiler)
+  or <font color="blue"> the shift-reduce parsing process
+    (for assignment 2 and 3 compilers).</font>
+  It also gives extra debugging output during static checking and interpretation or
+  code generation.
+<p>
+  <font color="blue">The <b>-t</b> option is useful for debugging problems with the
+  code your compiler generates; it gives a very verbose blow-by-blow
+  trace of the execution of the code.</font>
+<p>
+  To debug the parsing, run the compiler with the "-s" option
+  and perhaps "-d" to get the debugging output to see what it is doing.
+<p>
+To debug the static checker, run with "-i" and possibly "-d" as well.
+<p>
+  <font color="blue">To debug the code generation, run with just "-v" to see generated code,
+    and if things go wrong at run time, try adding "-t" to get a very detailed trace of execution,
+    instruction by instruction; this is where smaller programs will be easier.</font>
+
+<h3>Test Programs</h3>
+
+There is a suite of test PL0 programs within the
+subdirectory <i>test-pgm</i>. 
+
+When you run a program using the PL0_RD run configuration the output of the compiler appears in the
+"Console" window (usually under the program).
+<pre>
+Compiling test-based-write1.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+1
+
+Terminated
+No errors detected.
+
+Process finished with exit code 0
+</pre>
+The line containing "1" is the output produced by this particular
+(simple) PL0 program.
+
+
+<h3>Syntax Highlighting</h3>
+To enable PL0 syntax highlighting
+<ul>
+  <li>File > Import Settings</li>
+  <li>Navigate to the unzipped directory and select pl0-syntax.jar and open and OK</li>
+  <li>You'll need to restart IntelliJ
+</ul>
+<font color="blue">
+To enable Java CUP syntax highlighting:
+<ul>
+  <li>File (IntelliJ Idea on Mac) > Settings (Preferences on Mac) > Plugins > Browse repositories > Cup support (install and restart IntelliJ)
+</ul>
+</font>
+
+<h3>Using git</h3>
+To enable git version control in IntelliJ:
+<ul>
+    <li>VCS > Enable Version Control Integration > Git > Ok
+    <li>Select all the files > Right Click > Git > Add
+    <li>VCS > Git > Commit File > Select all files (if not already selected) > Enter commit message and commit (don't select Commit and Push)
+</ul>
+
+<font color="blue">
+<h3>Running CUP and JFlex to build parser and lexical analyser (scanner) Java source files</h3>
+
+Run scripts <i>Run CUP</i> and <i>Run JFlex</i> are provided with the compilers using Java CUP
+and JFLex to generate the parser and lexical analyser, respectively.
+<p>
+  The run script <i>PL0_LALR</i> automatically runs both Java CUP and JFlex
+  but the errors messages for each of these only flash up in the console window for a short time.
+  To see the messages from Java CUP or JFLex you can select the "Run CUP" or "Run JFlex" tabs
+  in the console window of IntelliJ (at the bottom).
+  Alternatively, you can run Java Cup and JFlex separately (see below) and check for errors,
+  before running <i>PL0_LALR</i>.
+
+<h4>Run CUP</h4>
+
+<ul>
+  <li>This script runs Java CUP on input file <i>PL0.cup</i> to produce <i>CUPParser.java</i> and <i>CUPToken.java</i>.
+  <li>You need to rerun this script any time you change <i>PL0.cup</i>.
+  <li>If there are any errors Java CUP will not (re-)generate the Java files for <i>CUPParser</i> and <i>CUPToken</i>.
+  <li>You may get warnings like
+    <pre>
+      Warning: Terminal "ILLEGAL" was declared but never used
+    </pre>
+    which are OK unless you are expecting the terminal symbol to be used in your grammar (that is never the case for "ILLEGAL").
+  <li>Common typos that lead to errors are
+    <ul>
+      <li>forgetting the ":}" at the end of a block of action code (e.g. just writing "}")
+      <li>forgetting the ";" at the end of a production
+    </ul>
+    Using the CUP support syntax highlighting in IntelliJ can help you to find issues like this
+    and other syntax issues in your CUP file but not syntax issues within the action code blocks.
+  <li>After running Java CUP the generated <i>CUPParser.java</i> may have compiler errors
+    because Java CUP just copies the action code blocks verbatim into <i>CUPParser</i>.
+    There are comments in the generated <i>CUPParser</i> file indicating
+    which production the action code is associated with.
+    When you work out what is causing the problem, fix it in <i>PL0.cup</i> and rerun Java CUP. 
+</ul>
+
+<font color="red">
+  The following are instructions to set up the <i>Run CUP</i> run script in IntelliJ.
+  You should not need to use these.
+<ul>
+    <li>Run > Edit Configurations > Plus Button > Application
+    <li>Give the configuration a name like "Run CUP"
+    <li>Select the main class using the drop down and searching for java_cup.Main.
+    <li>Put "-interface -locations -parser CUPParser -symbols CUPToken PL0.cup" into the program arguments
+    <li>Select the src/parse directory as the working directory using the file browser
+      (or append /src/parse to the end of the default path)
+</ul>
+</font>
+
+<h4>Run JFlex</h4>
+
+<ul>
+  <li>This script runs JFlex on input file <i>PL0.flex</i> to generate the lexical analyser <i>Lexer.java</i>
+  <li>It links to the <i>CUPToken</i> class generated by JavaCUP.
+  <li>The terminal symbols (lexical tokens) defined in <i>PL0.flex</i> must match the terminal symbols defined in <i>PL0.cup</i> in its "terminals" section.
+  <li>Any additions to the terminal symbols require both <i>PL0.flex</i> and <i>PL0.cup</i> to be updated
+    and both Java CUP and JFlex rerun.
+</ul>
+
+<font color="red">
+  The following are instructions to set up the <i>Run CUP</i> run script in IntelliJ.
+  You should not need to use these.
+<ul>
+    <li>Under the left column > Plus Button > Application
+    <li>Give the configuration a name like "Run JFlex"
+    <li>Select the main class using the drop down and searching for jflex.Main.
+    <li>Put PL0.flex into the program arguments
+    <li>Select the src/parse directory as the working directory using the file browser
+      (or append /src/parse to the end of the default path)
+    <li>Under 'Before launch' > Plus Button > Run Another Configuration > Compile CUP
+      (or the name used for the previous configuration)
+</ul>
+</font>
+</font>
+
+<font color="blue">
+<h3>Tracing generated code</h3>
+
+In the tracing
+<ul>
+  <li>PC stands for "Program Counter", i.e. the location of the instruction being executed
+  <li>FP stands for "Frame Pointer", 0 for the main program but non-zero for procedures called directly
+    or indirectly from the main program (this isn't all that relevant for assignment 1)
+  <li>  SP stands for "Stack Pointer"; a push increases it and a pop decreases it;
+    it starts at 3 and should never get below 3
+  <li>Opcode gives the instruction being executed
+  <li>All pops and pushes on the stack are traced giving the values pushed and popped
+  <li>Store [3] <= 100 means 100 is stored at location 3
+  <li>Load [3] => 100 means 100 was loaded from location 3 (it then gets pushed onto the stack)
+  <li>Branch => 1017 means branch to location 1017, i.e. set the PC to 1017
+</ul>
+The tricky (and common) errors are when you get the branch offset out and branch to
+a different instruction to what you expected.
+That can lead to weird behaviour including stack under/over flows, etc.
+If you branch into the second word of a LOADCON, it may not even be a valid opcode for an instruction.
+</font>
+
+<h2>Using Eclipse (not preferred)</h2>
+
+If you are using Eclipse then it will automatically compile the Java
+source files.
+<font color="blue">
+For the compiler generated via Java-CUP (assignments 2 and 3):
+<ul>
+  <li>to run the Java-CUP parser generator to rebuild CUPParser.java and
+  CUPTokens.java from PL0.cup run the ant script <i>build-cup.xml</i>
+  from within Eclipse
+  <ul>
+    <li>Select <i>build-cup.xml</i> and right click
+    <li>Select Run As > Ant Build
+    <li>The output from JavaCup appears in the Console window
+    <li>Be sure to check any for any JavaCUP errors,
+      as it will not generate the Java parser CUPParser.java if there are any
+    <li>JavaCUP warnings of the form "Warning : Terminal "ILLEGAL" was declared but never used" are OK
+  </ul>
+  <li>you also need to refresh the parser files after running the ant
+  script, but you can set up Eclipse to do this automatically as part
+  of running the ant script</li>
+  <li>to run the JFlex lexical analyser generator to build Lexer.java from
+  PL0.flex run the ant script <i>build-flex.xml</i> from within
+  Eclipse, and refresh the parser files; you should only need to
+  generate Lexer.java once.
+</ul>
+</font>
+
+<h3>Running the PL0 compiler under Eclipse</h3>
+
+You'll need to set up a run configuration to run the PL0 compiler
+under Eclipse.
+While in the assignment compiler Eclipse project that you have
+imported. 
+<ul>
+ <li>Select Run>Run Configurations...
+ <li>Select Java Application
+ <li>Press the new icon (the box with the "+" in the corner)
+ <li>Give your new configuration a name (like "A1run")
+ <li>The Project field should correspond to the compiler project (eg,
+  "T4", "A1")
+ <li>Under the "Main" tab, press "search" under "Main class"
+ <li>Select PL0_RD (for recursive descent) or 
+    <font color="blue">PL0_LALR (for Java-CUP version)</font> from package pl0
+ <li>Select the "Arguments" tab
+ <li>Insert in text box 
+     <ul>
+       -v "${resource_loc}"
+     </ul>
+     These are the arguments to the PL0 compiler, which are described
+     in more detail below. 
+     If the path name to your workspace includes blanks,
+     don't forget to put the quotes around ${resource_loc}.
+     In Eclipse ${resource_loc} is replaced by the currently selected file. 
+     Hence to compile a PL0 program, 
+     you should first select the PL0 program,
+     e.g., select "test-pgm/test-based-write1.pl0" 
+     (which is the closest PL0 gets to a "Hello World" program)
+     under Eclipse, and then select "Run>Run" to run the run
+     configuration that you previously ran, or "Run>Run
+     Configurations..." to switch to a different configuration, or
+     create a new configuration.
+</ul>
+
+<!--
+<font color="blue">
+<h4>Running CUP and JFlex to build the parser and scanner Java source</h4>
+<ul>
+    <li>View > Tool Windows > Ant Build > Select the build.xml inside the project directory, also add (using Green +) the build-cup.xml and build-flex.xml
+    <li>For all three ant build targets, Right click on it, Properties > Additional Classpath > Add > Select both the javacup and jflex jars
+    <li>Open build.xml, build-flex.xml, build-cup.xml and add the following lines just after the first line (after the project name)<br/>
+&lt;taskdef name="JFlexTask" classname="jflex.anttask.JFlexTask"/&gt;<br/>
+&lt;taskdef name="CUPTask" classname="java_cup.anttask.CUPTask"/&gt;<br/>
+I also modified the project name in build-cup.xml to PL0-Compiler-Cup and changed &lt;target name="build" depends="cup,jflex,compile"&gt; near the bottom of build.xml to &lt;target name="build" depends="cup,jflex"&gt;. This last change makes it so that build just calls cup and flex and leaves compiling to IntelliJ
+    <li>PL0-Compiler > Right click "build" > Execute On > Before Compilation</li>
+
+    <p>To test it out, try hit run. You should see that the Lexer.java file has changed on line 23 to use your path and not ian's file path</p>
+
+    <p>NOTE: if this ever breaks weirdly for whatever reason, go to Build > Rebuild project and try again
+    File > Settings > Plugins > Browse repositories > Cup Support & Grammar-Kit (.cup and .flex support)</p>
+</ul>
+</font>
+-->
+
+<!--
+<p>
+Within tests there is a Unix shell script <i>mkresult</i>,
+which runs the PL0 compiler 
+(you must have already compiled the compiler)
+on a test file passed as an argument, e.g.,
+within directory <i>tests</i> run
+<ul>
+  ./mkresult test-write1.pl0
+</ul>
+<p>
+The <i>mkresult</i> shell script also saves copies of the
+standard output produced by the compiler in
+subdirectory <i>results</i> under the name 
+<i>r-test-write1.pl0</i> and
+the standard error output in subdirectory <i>errors</i> under the
+name <i>e-test-write1.pl0</i>. 
+<p>
+The shell script <i>runtests</i> in the assignment directory will run
+<mkresult</i> on every test program file within the subdirectory 
+<i>test-pgm</i>.
+A test program file must start with "test".
+<p>
+You should develop your own set of test cases to thoroughly test 
+your compiler.
+-->
+
+
+<!--
+<h4>Using Unix shell scripts</h4>
+
+Within the assignment compiler directory there are a number of Unix shell
+scripts to compile and run the PL0 compiler.
+You can make (i.e., compile) the PL0 compiler using the Unix shell
+script <i>compile</i>, i.e., run
+<ul>
+      ./compile
+</ul>
+The Java source code for the compiler is all in the
+subdirectory <i>src</i>. 
+See the the accompanying description of the source files.
+<p>
+The compilation process places the compiled class files in the
+subdirectory build.
+The main program is in package pl0 and file PL0.java.
+<p>
+There is also an ant script called <i>build.xml</i>.
+-->
+
+<!--<p> <FORM><INPUT TYPE="button" VALUE="Back" onClick="history.go(-1);return true;"></FORM>-->
+
+</body>
+</html>

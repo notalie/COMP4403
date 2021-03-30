@@ -1,0 +1,8 @@
+Compiling test-basec-while1.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+30
+
+Terminated
+No errors detected.

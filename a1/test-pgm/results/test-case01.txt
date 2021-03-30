@@ -1,0 +1,9 @@
+Compiling test-case01.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+     2   case 1 of
+******        ^ Fatal: expression in case doesn't match any label
+PROC <main> : level 1
+
+1 error detected.

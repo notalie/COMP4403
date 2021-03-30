@@ -1,0 +1,9 @@
+Compiling test-massign3-err.pl0
+Parsing complete
+     5   x := 1 | x := 2;  // x assigned more than once
+******            ^  Error: x assigned more than once
+     6   x := b | b := x   // both assignments are not type correct
+******        ^  Error: cannot coerce boolean to int
+******                 ^  Error: cannot coerce int to boolean
+Static semantic analysis complete
+3 errors detected.

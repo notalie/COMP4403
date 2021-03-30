@@ -1,0 +1,8 @@
+Compiling test-base5-fact.pl0
+Parsing complete
+Static semantic analysis complete
+Running ...
+120
+
+Terminated
+No errors detected.
