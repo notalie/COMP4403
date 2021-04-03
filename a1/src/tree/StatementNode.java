@@ -129,7 +129,7 @@ public abstract class StatementNode {
     /**
      * Tree node representing an assignment statement.
      */
-    public static class AssignmentNode extends StatementNode {
+    public static class SingleAssignmentNode extends StatementNode {
         /**
          * Tree node for expression on left hand side of an assignment.
          */
@@ -139,7 +139,7 @@ public abstract class StatementNode {
          */
         private ExpNode exp;
 
-        public AssignmentNode(Location loc, ExpNode variable, ExpNode exp) {
+        public SingleAssignmentNode(Location loc, ExpNode variable, ExpNode exp) {
             super(loc);
             this.lValue = variable;
             this.exp = exp;
@@ -147,7 +147,7 @@ public abstract class StatementNode {
 
         @Override
         public void accept(StatementVisitor visitor) {
-            visitor.visitAssignmentNode(this);
+            visitor.visitSingleAssignmentNode(this);
         }
 
         public ExpNode getVariable() {
@@ -177,6 +177,38 @@ public abstract class StatementNode {
         @Override
         public String toString(int level) {
             return lValue.toString() + " := " + exp.toString();
+        }
+    }
+
+    /**
+     * Tree node representing multiple assignments.
+     */
+    public static class AssignmentNode extends StatementNode {
+        private final List<SingleAssignmentNode> statements;
+
+        public AssignmentNode(Location loc, List<SingleAssignmentNode> sl) {
+            super(loc);
+            this.statements = sl;
+        }
+
+        @Override
+        public void accept(StatementVisitor visitor) {
+            visitor.visitAssignmentNode(this);
+        }
+
+        public List<SingleAssignmentNode> getStatements() {
+            return statements;
+        }
+
+        @Override
+        public String toString(int level) {
+            StringBuilder result = new StringBuilder();
+            String sep = "";
+            for (StatementNode s : statements) {
+                result.append(sep).append(s.toString(level));
+                sep = " | ";
+            }
+            return result.toString();
         }
     }
 
@@ -236,6 +268,27 @@ public abstract class StatementNode {
         @Override
         public String toString(int level) {
             return "WRITE " + exp;
+        }
+    }
+
+    /**
+     * Tree node representing a "skip" statement.
+     */
+    public static class SkipNode extends StatementNode {
+
+        public SkipNode(Location loc) {
+            super(loc);
+        }
+
+        @Override
+        public void accept(StatementVisitor visitor) {
+            visitor.visitSkipNode(this);
+        }
+
+
+        @Override
+        public String toString(int level) {
+            return "SKIP";
         }
     }
 

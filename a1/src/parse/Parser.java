@@ -45,7 +45,8 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  * StatementList -> Statement { SEMICOLON Statement }
  * Statement -> WhileStatement | IfStatement | CallStatement | Assignment |
  *          ReadStatement | WriteStatement | CompoundStatement
- * Assignment -> LValue ASSIGN Condition
+ * Assignment -> SingleAssign { BAR SingleAssign }
+ * SingleAssign -> LValue ASSIGN Condition
  * WhileStatement -> KW_WHILE Condition KW_DO Statement
  * IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
  * CallStatement -> KW_CALL IDENTIFIER LPAREN ActualParameters RPAREN
@@ -467,7 +468,7 @@ public class Parser {
     private final static TokenSet STATEMENT_START_SET =
             LVALUE_START_SET.union(Token.KW_WHILE, Token.KW_IF,
                     Token.KW_READ, Token.KW_WRITE,
-                    Token.KW_CALL, Token.KW_BEGIN);
+                    Token.KW_CALL, Token.KW_BEGIN, Token.KW_SKIP);
 
     /**
      * Rule: CompoundStatement -> BEGIN StatementList END
@@ -480,6 +481,20 @@ public class Parser {
                     StatementNode result =
                             parseStatementList(recoverSet.union(Token.KW_END));
                     tokens.match(Token.KW_END, recoverSet);
+                    return result;
+                });
+    }
+
+    /**
+     * Rule: SkipStatement -> KW_SKIP
+     */
+    private StatementNode parseSkipStatement(TokenSet recoverSet) {
+        return stmt.parse("Skip Statement", Token.KW_SKIP, recoverSet,
+                () -> {
+                    /* The current token is KW_SKIP */
+                    tokens.match(Token.KW_SKIP);
+                    Location loc = tokens.getLocation();
+                    StatementNode result = new StatementNode.SkipNode(loc);
                     return result;
                 });
     }
@@ -533,6 +548,8 @@ public class Parser {
                             return parseCallStatement(recoverSet);
                         case KW_BEGIN:
                             return parseCompoundStatement(recoverSet);
+                        case KW_SKIP:
+                            return parseSkipStatement(recoverSet);
                         default:
                             fatal("parseStatement");
                             // To keep the Java compiler happy - can't reach here
@@ -541,27 +558,49 @@ public class Parser {
                 });
     }
 
-    private final ParseMethod<StatementNode.AssignmentNode> assign =
+    private final ParseMethod<StatementNode.SingleAssignmentNode> singleAssign =
             new ParseMethod<>(
-                    (Location loc) -> new StatementNode.AssignmentNode(loc,
+                    (Location loc) -> new StatementNode.SingleAssignmentNode(loc,
                             new ExpNode.ErrorNode(loc), new ExpNode.ErrorNode(loc)));
 
     /**
-     * Rule: Assignment -> LValue ASSIGN Condition
+     * Rule: SingleAssign -> LValue ASSIGN Condition
      */
-    private StatementNode.AssignmentNode parseAssignment(TokenSet recoverSet) {
-        return assign.parse("Assignment", LVALUE_START_SET, recoverSet,
+    private StatementNode.SingleAssignmentNode parseSingleAssignment(TokenSet recoverSet) {
+        return singleAssign.parse("Assignment", LVALUE_START_SET, recoverSet,
                 () -> {
                     /* The current token is in LVALUE_START_SET.
                      * Non-standard recovery set includes EQUALS because a
                      * common syntax error is to use EQUALS instead of ASSIGN.
                      */
+                    Location loc = tokens.getLocation();
                     ExpNode left = parseLValue(
                             recoverSet.union(Token.ASSIGN, Token.EQUALS));
-                    Location loc = tokens.getLocation();
                     tokens.match(Token.ASSIGN, CONDITION_START_SET);
                     ExpNode right = parseCondition(recoverSet);
-                    return new StatementNode.AssignmentNode(loc, left, right);
+                    return new StatementNode.SingleAssignmentNode(loc, left, right);
+                });
+    }
+
+    private final ParseMethod<StatementNode> assign =
+            new ParseMethod<>(
+                    (Location loc) -> new StatementNode.ErrorNode(loc));
+
+    /**
+     * Rule: Assignment ->  SingleAssign { BAR SingleAssign }
+     */
+    private StatementNode parseAssignment(TokenSet recoverSet) {
+        return assign.parse("Assignment", LVALUE_START_SET, recoverSet,
+                () -> {
+                    Location loc = tokens.getLocation();
+                    List<StatementNode.SingleAssignmentNode> assignments = new LinkedList<>();
+                    assignments.add(parseSingleAssignment(recoverSet));
+
+                    while(tokens.isMatch(Token.BAR)) {
+                        tokens.match(Token.BAR);
+                        assignments.add(parseSingleAssignment(recoverSet));
+                    }
+                    return new StatementNode.AssignmentNode(loc, assignments);
                 });
     }
 

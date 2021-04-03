@@ -14,8 +14,6 @@ public interface StatementVisitor {
 
     void visitStatementListNode(StatementNode.ListNode node);
 
-    void visitAssignmentNode(StatementNode.AssignmentNode node);
-
     void visitReadNode(StatementNode.ReadNode node);
 
     void visitWriteNode(StatementNode.WriteNode node);
@@ -26,4 +24,9 @@ public interface StatementVisitor {
 
     void visitWhileNode(StatementNode.WhileNode node);
 
+    void visitSkipNode(StatementNode.SkipNode node);
+
+    void visitSingleAssignmentNode(StatementNode.SingleAssignmentNode node);
+
+    void visitAssignmentNode(StatementNode.AssignmentNode node);
 }

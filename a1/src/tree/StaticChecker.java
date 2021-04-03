@@ -116,7 +116,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     /**
      * Assignment statement node
      */
-    public void visitAssignmentNode(StatementNode.AssignmentNode node) {
+    public void visitSingleAssignmentNode(StatementNode.SingleAssignmentNode node) {
         beginCheck("Assignment");
         // Check the left side left value.
         ExpNode left = node.getVariable().transform(this);
@@ -134,6 +134,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             node.setExp(baseType.coerceExp(exp));
         } else if (left.getType() != Type.ERROR_TYPE) {
                 staticError("variable expected", left.getLocation());
+        }
+        endCheck("Assignment");
+    }
+
+    public void visitAssignmentNode(StatementNode.AssignmentNode node) {
+        beginCheck("Assignment");
+        for (StatementNode s : node.getStatements()) {
+            // TODO: Need to do checking for each left node here for types and assignment I think
+            s.accept(this);
         }
         endCheck("Assignment");
     }
@@ -169,6 +178,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         // or complain if not possible.
         node.setExp(Predefined.INTEGER_TYPE.coerceExp(exp));
         endCheck("Write");
+    }
+
+    /**
+     * Skip statement node
+     */
+    public void visitSkipNode(StatementNode.SkipNode node) {
+        beginCheck("Skip");
+        // Don't do anything
+        endCheck("Skip");
     }
 
 

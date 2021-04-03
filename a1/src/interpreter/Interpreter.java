@@ -121,18 +121,28 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         frame.assign(lValue.getAddressOffset(), value);
     }
 
-
+    /**
+     * Execute code for a single assignment statement
+     */
+    public void visitSingleAssignmentNode(StatementNode.SingleAssignmentNode node) {
+        beginExec("SingleAssignment");
+        /* Evaluate the code to be assigned */
+        // need to split value from reference
+        Value value = node.getExp().evaluate(this);
+        /* Assign the value to the variables offset */
+        Value lValue = node.getVariable().evaluate(this);
+        assignValue(lValue, value);
+        endExec("SingleAssignment");
+    }
 
     /**
      * Execute code for an assignment statement
      */
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginExec("Assignment");
-        /* Evaluate the code to be assigned */
-        Value value = node.getExp().evaluate(this);
-        /* Assign the value to the variables offset */
-        Value lValue = node.getVariable().evaluate(this);
-        assignValue(lValue, value);
+        for (StatementNode statement : node.getStatements()) {
+            statement.accept(this);
+        }
         endExec("Assignment");
     }
 
@@ -165,6 +175,15 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         /* Print the result to the outStream */
         outStream.println(result);
         endExec("Write");
+    }
+
+    /**
+     * Execute code for a skip statement
+     */
+    public void visitSkipNode(StatementNode.SkipNode node) {
+        beginExec("Skip");
+        /* Literally does nothing */
+        endExec("Skip");
     }
 
     /**
