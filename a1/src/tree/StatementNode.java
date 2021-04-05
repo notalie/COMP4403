@@ -2,6 +2,7 @@ package tree;
 
 import java.util.*;
 
+import com.sun.tools.internal.jxc.ap.Const;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 import syms.Scope;
 import syms.SymEntry;
@@ -211,6 +212,86 @@ public abstract class StatementNode {
             return result.toString();
         }
     }
+
+    /**
+     * Tree node representing a branch statement
+     */
+    public static class CaseNode extends StatementNode {
+        ExpNode caseValue;
+        private final List<StatementNode> statements;
+
+        StatementNode defaultStmt;
+
+        public CaseNode(Location loc, ExpNode caseValue, List<StatementNode> stmts, StatementNode defaultStmt) {
+            super(loc);
+            this.caseValue = caseValue;
+            this.statements = stmts;
+            this.defaultStmt = defaultStmt;
+        }
+
+        @Override
+        public void accept(StatementVisitor visitor) {
+            visitor.visitCaseNode(this);
+        }
+
+        public ExpNode getCaseValue() {
+            return caseValue;
+        }
+
+        public void setCaseValue(ExpNode lValue) {
+            this.caseValue = lValue;
+        }
+
+        @Override
+        public String toString(int level) {
+            String toReturn;
+            if (caseValue instanceof ExpNode.IdentifierNode) {
+                toReturn = "Case " + ((ExpNode.IdentifierNode) caseValue).getId() + " of\n" + statements.toString();
+                if (this.defaultStmt != null) {
+                    toReturn += " Default:" + this.defaultStmt;
+                }
+            } else {
+                toReturn = "Case " + caseValue + " of\n" + statements.toString();
+                if (this.defaultStmt != null) {
+                    toReturn += " Default:" + this.defaultStmt;
+                }
+            }
+            return toReturn;
+        }
+    }
+
+    /**
+     * Tree node representing a branch statement
+     */
+    public static class CaseBranchNode extends StatementNode {
+        ConstExp lValue;
+        StatementNode stmts;
+
+        public CaseBranchNode(Location loc, ConstExp lValue, StatementNode stmts) {
+            super(loc);
+            this.lValue = lValue;
+            this.stmts = stmts;
+        }
+
+        @Override
+        public void accept(StatementVisitor visitor) {
+            visitor.visitBranchNode(this);
+        }
+
+        public ConstExp getLValue() {
+            return lValue;
+        }
+
+        public void setCaseValue(ConstExp lValue) {
+            this.lValue = lValue;
+        }
+
+        @Override
+        public String toString(int level) {
+            return "When " + lValue.value + ": " + stmts.toString();
+        }
+    }
+
 
     /**
      * Tree node representing a "read" statement.

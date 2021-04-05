@@ -138,23 +138,35 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
      * Execute code for an assignment statement
      */
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
+        // Keeps track of every statement and their evaluated expression
         HashMap<StatementNode.SingleAssignmentNode, Value> assignMap = new HashMap<>();
         beginExec("Assignment");
+        // Get the expression of each statement and add it to the map
         for (StatementNode.SingleAssignmentNode statement : node.getStatements()) {
             Value value = statement.getExp().evaluate(this);
             assignMap.put(statement, value);
-//            statement.accept(this); // Need to evaluate expressions as a list
-            // Need to assign left values now
         }
 
+        // Assign the expression to the left side value
         for (StatementNode.SingleAssignmentNode statement : node.getStatements()) {
             Value rValue = assignMap.get(statement);
             Value lValue = statement.getVariable().evaluate(this);
             assignValue(lValue, rValue);
-//            statement.accept(this); // Need to assign values
-            // Need to assign left values now
         }
         endExec("Assignment");
+    }
+
+    public void visitBranchNode(StatementNode.CaseBranchNode node) {
+        // TODO
+        beginExec("Branch");
+        endExec("Branch");
+    }
+
+
+    public void visitCaseNode(StatementNode.CaseNode node) {
+        // TODO
+        beginExec("Case");
+        endExec("Case");
     }
 
     /**

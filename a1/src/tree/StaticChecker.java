@@ -140,6 +140,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginCheck("Assignment");
+        // any duplicates will not be added so the size of the set will be lower
         HashSet<String> variableNameSet = new HashSet<>();
 
         for (int i = 0; i < node.getStatements().size(); i++) {
@@ -150,10 +151,17 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             if (variableNameSet.size() != i + 1) {  // set has a repeated identifier
                 staticError(variableName + " assigned more than once" , s.getLocation());
             }
-            s.accept(this);
+            s.accept(this); // if all is good, visit the assignment node
         }
-        //Error: x assigned more than once
         endCheck("Assignment");
+    }
+
+    public void visitBranchNode(StatementNode.CaseBranchNode node) {
+        // TODO
+    }
+
+    public void visitCaseNode(StatementNode.CaseNode node) {
+        // TODO
     }
 
     /**

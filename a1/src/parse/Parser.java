@@ -2,6 +2,7 @@ package parse;
 
 import java.util.*;
 
+import jdk.nashorn.internal.ir.CaseNode;
 import syms.Predefined;
 import syms.Scope;
 import syms.SymEntry;
@@ -468,7 +469,7 @@ public class Parser {
     private final static TokenSet STATEMENT_START_SET =
             LVALUE_START_SET.union(Token.KW_WHILE, Token.KW_IF,
                     Token.KW_READ, Token.KW_WRITE,
-                    Token.KW_CALL, Token.KW_BEGIN, Token.KW_SKIP);
+                    Token.KW_CALL, Token.KW_BEGIN, Token.KW_SKIP, Token.KW_CASE);
 
     /**
      * Rule: CompoundStatement -> BEGIN StatementList END
@@ -496,6 +497,56 @@ public class Parser {
                     Location loc = tokens.getLocation();
                     StatementNode result = new StatementNode.SkipNode(loc);
                     return result;
+                });
+    }
+
+    /**
+     * Rule: CaseStatement -> KW_CASE Condition KW_OF { CaseBranch } [ KW_DEFAULT StatementList ] KW_END
+     */
+    private StatementNode parseCaseStatement(TokenSet recoverSet) {
+        return stmt.parse("Case Statement", Token.KW_CASE, recoverSet,
+                () -> {
+                    StatementNode defaultCase = null; // might not be needed
+                    Location loc = tokens.getLocation();
+
+                    tokens.match(Token.KW_CASE);
+                    ExpNode caseValue = parseCondition(recoverSet.union(Token.KW_OF));
+                    tokens.match(Token.KW_OF);
+
+                    // Initialize result to an empty list of case statements
+                    List<StatementNode> cases = new LinkedList<>();
+                    StatementNode s = parseCaseBranch(recoverSet);
+                    cases.add(s);
+                    while (tokens.isMatch(Token.KW_WHEN)) {
+                        s = parseCaseBranch(recoverSet);
+                        cases.add(s);
+                    }
+
+                    // Parse default if it exists
+                    if (tokens.isMatch(Token.KW_DEFAULT)) {
+                        tokens.match(Token.KW_DEFAULT, STATEMENT_START_SET);
+                        defaultCase = parseStatementList(recoverSet);
+                    }
+
+                    // parse KW_END
+                    tokens.match(Token.KW_END, recoverSet);
+                    return new StatementNode.CaseNode(loc, caseValue, cases, defaultCase);
+                });
+    }
+
+    /**
+     * CaseBranch -> KW_WHEN Constant COLON StatementList
+     */
+    private StatementNode parseCaseBranch(TokenSet recoverSet) {
+        return stmt.parse("Case Branch", Token.KW_WHEN, recoverSet,
+                () -> {
+                    /* The current token is KW_WHEN */
+                    tokens.match(Token.KW_WHEN); // Cannot fail
+                    Location loc = tokens.getLocation();
+                    ConstExp c = parseConstant(recoverSet.union(STATEMENT_START_SET));
+                    tokens.match(Token.COLON, STATEMENT_START_SET);
+                    StatementNode result = parseStatementList(recoverSet);
+                    return new StatementNode.CaseBranchNode(loc, c, result);
                 });
     }
 
@@ -550,6 +601,8 @@ public class Parser {
                             return parseCompoundStatement(recoverSet);
                         case KW_SKIP:
                             return parseSkipStatement(recoverSet);
+//                        case KW_CASE: //TODO: Take out/put in to pass the tests lol
+//                            return parseCaseStatement(recoverSet);
                         default:
                             fatal("parseStatement");
                             // To keep the Java compiler happy - can't reach here

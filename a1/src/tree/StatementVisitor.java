@@ -29,4 +29,8 @@ public interface StatementVisitor {
     void visitSingleAssignmentNode(StatementNode.SingleAssignmentNode node);
 
     void visitAssignmentNode(StatementNode.AssignmentNode node);
+
+    void visitBranchNode(StatementNode.CaseBranchNode node);
+
+    void visitCaseNode(StatementNode.CaseNode node);
 }
