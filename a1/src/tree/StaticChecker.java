@@ -140,10 +140,19 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginCheck("Assignment");
-        for (StatementNode s : node.getStatements()) {
-            // TODO: Need to do checking for each left node here for types and assignment I think
+        HashSet<String> variableNameSet = new HashSet<>();
+
+        for (int i = 0; i < node.getStatements().size(); i++) {
+            SingleAssignmentNode s = node.getStatements().get(i);
+            String variableName = ((ExpNode.IdentifierNode) s.getVariable()).getId();
+            variableNameSet.add(variableName);
+
+            if (variableNameSet.size() != i + 1) {  // set has a repeated identifier
+                staticError(variableName + " assigned more than once" , s.getLocation());
+            }
             s.accept(this);
         }
+        //Error: x assigned more than once
         endCheck("Assignment");
     }
 

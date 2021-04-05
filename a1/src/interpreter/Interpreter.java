@@ -127,7 +127,6 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
     public void visitSingleAssignmentNode(StatementNode.SingleAssignmentNode node) {
         beginExec("SingleAssignment");
         /* Evaluate the code to be assigned */
-        // need to split value from reference
         Value value = node.getExp().evaluate(this);
         /* Assign the value to the variables offset */
         Value lValue = node.getVariable().evaluate(this);
@@ -139,9 +138,21 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
      * Execute code for an assignment statement
      */
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
+        HashMap<StatementNode.SingleAssignmentNode, Value> assignMap = new HashMap<>();
         beginExec("Assignment");
-        for (StatementNode statement : node.getStatements()) {
-            statement.accept(this);
+        for (StatementNode.SingleAssignmentNode statement : node.getStatements()) {
+            Value value = statement.getExp().evaluate(this);
+            assignMap.put(statement, value);
+//            statement.accept(this); // Need to evaluate expressions as a list
+            // Need to assign left values now
+        }
+
+        for (StatementNode.SingleAssignmentNode statement : node.getStatements()) {
+            Value rValue = assignMap.get(statement);
+            Value lValue = statement.getVariable().evaluate(this);
+            assignValue(lValue, rValue);
+//            statement.accept(this); // Need to assign values
+            // Need to assign left values now
         }
         endExec("Assignment");
     }
