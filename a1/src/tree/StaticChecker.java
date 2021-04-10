@@ -2,6 +2,8 @@ package tree;
 
 import java.util.*;
 
+import com.sun.tools.internal.jxc.ap.Const;
+import interpreter.Value;
 import source.VisitorDebugger;
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -143,24 +145,20 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         // any duplicates will not be added so the size of the set will be lower
         HashSet<String> variableNameSet = new HashSet<>();
 
-        for (int i = 0; i < node.getStatements().size(); i++) {
-            SingleAssignmentNode s = node.getStatements().get(i);
+        for (SingleAssignmentNode s : node.getStatements()) {
             s.accept(this); // parse statement
 
             String variableName = s.getVariableName(); // get name and add it to the set
-            variableNameSet.add(variableName);
-            if (variableNameSet.size() != i + 1) {  // set has a repeated identifier
+            if (variableNameSet.contains(variableName)) {  // set has a repeated identifier
                 staticError(variableName + " assigned more than once" , s.getLocation());
             }
+            variableNameSet.add(variableName);
         }
         endCheck("Assignment");
     }
 
     public void visitBranchNode(StatementNode.CaseBranchNode node) {
-        // TODO
         beginCheck("Branch");
-        node.getLValue().evaluate();
-//        staticError("case label type does not match case expression type");
         visitStatementListNode((ListNode) node.getStatements());
         endCheck("Branch");
 
@@ -168,11 +166,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     public void visitCaseNode(StatementNode.CaseNode node) {
         beginCheck("Case");
-        // TODO - need to check stuff, temporary fix for interpreting
+        HashSet<String> caseLabelSet = new HashSet<>();
 
         ExpNode cond = node.getCondition();
         cond = cond.transform(this);
-
         Type.ScalarType refType = (Type.ScalarType)cond.getType().optDereferenceType();
 
         if (refType.toString() == "boolean") {
@@ -182,13 +179,25 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         }
 
         for (StatementNode stmt : node.getStatements()) { // visit each statement
+            ConstExp caseLabel = ((CaseBranchNode)stmt).getLValue();
+            // Get the name of the variable, need to use a string as false == 0 and true == 1
+            // which will overlap with integers 0 and 1
+            String caseValue = caseLabel.getType().toString().equals("boolean") ?
+                    (caseLabel.getValue() == 1 ? "true" : "false") :
+                    Integer.toString(caseLabel.getValue());
+
             stmt.accept(this);
-            // TODO: Check for double up identifiers
+
+            if (caseLabelSet.contains(caseValue)) {
+                staticError("repeated label in case branch", stmt.getLocation());
+            }
+
             if (stmt instanceof CaseBranchNode &&
                     !refType.getScalarType().containsElement(((CaseBranchNode) stmt).getLValue().type,
                             ((CaseBranchNode) stmt).getLValue().getValue())) {
                 staticError("case label type does not match case expression type", stmt.getLocation());
             }
+            caseLabelSet.add(caseValue);
         }
 
         endCheck("Case");

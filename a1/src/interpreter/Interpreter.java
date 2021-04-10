@@ -164,25 +164,32 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
 
 
     public void visitCaseNode(StatementNode.CaseNode node) {
-        //TODO
         beginExec("Case");
         boolean foundStatement = false;
         int caseValue = node.getCondition().evaluate(this).getInteger();
+        //TODO: Keep track of each constant
+        HashSet<String> caseLabelTracker = null;
 
-        for (StatementNode stmt : node.getStatements()) {
-            StatementNode.CaseBranchNode caseBranch = (StatementNode.CaseBranchNode) stmt;
+        for (int i = 0; i < node.getStatements().size(); i++) {
+            StatementNode.CaseBranchNode caseBranch = (StatementNode.CaseBranchNode) node.getStatements().get(i);
             int toCompare = caseBranch.getLValue().getValue();
             if (caseValue == toCompare) { // If the case x == when x
                 visitBranchNode(caseBranch);
                 foundStatement = true;
             }
         }
+
+        // go to the default statement if it exists
         if (!foundStatement && node.hasDefault()) {
             visitStatementListNode((StatementNode.ListNode)node.getDefault());
-        } else if (!foundStatement) {
+        } else if (!foundStatement) { // Nothing has been executed, fatal error
             String errorMessage = "expression in case doesn't match any label\n" +
                     "PROC <main> : level 1\n";
-            System.out.println(node.getCondition());
+            if (node.getCondition().getClass() == ExpNode.DereferenceNode.class) {
+                ExpNode.DereferenceNode castedNode = (ExpNode.DereferenceNode) node.getCondition();
+                errorMessage += "\t" + castedNode.getLeftValue().toString() + " = " +
+                        node.getCondition().evaluate(this).getInteger() + "\n";
+            }
             errors.fatal(errorMessage, node.getCondition().getLocation());
         }
         endExec("Case");
