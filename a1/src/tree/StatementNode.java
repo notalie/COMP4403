@@ -217,14 +217,14 @@ public abstract class StatementNode {
      * Tree node representing a branch statement
      */
     public static class CaseNode extends StatementNode {
-        ExpNode caseValue;
+        private ExpNode condition;
         private final List<StatementNode> statements;
 
-        StatementNode defaultStmt;
+        private final StatementNode defaultStmt;
 
-        public CaseNode(Location loc, ExpNode caseValue, List<StatementNode> stmts, StatementNode defaultStmt) {
+        public CaseNode(Location loc, ExpNode condition, List<StatementNode> stmts, StatementNode defaultStmt) {
             super(loc);
-            this.caseValue = caseValue;
+            this.condition = condition;
             this.statements = stmts;
             this.defaultStmt = defaultStmt;
         }
@@ -234,24 +234,36 @@ public abstract class StatementNode {
             visitor.visitCaseNode(this);
         }
 
-        public ExpNode getCaseValue() {
-            return caseValue;
+        public ExpNode getCondition() {
+            return condition;
         }
 
-        public void setCaseValue(ExpNode lValue) {
-            this.caseValue = lValue;
+        public void setCondition(ExpNode condition) {
+            this.condition = condition;
+        }
+
+        public List<StatementNode> getStatements() {
+            return this.statements;
+        }
+
+        public StatementNode getDefault() {
+            return this.defaultStmt;
+        }
+
+        public boolean hasDefault() {
+            return this.defaultStmt != null;
         }
 
         @Override
         public String toString(int level) {
             String toReturn;
-            if (caseValue instanceof ExpNode.IdentifierNode) {
-                toReturn = "Case " + ((ExpNode.IdentifierNode) caseValue).getId() + " of\n" + statements.toString();
+            if (condition instanceof ExpNode.IdentifierNode) {
+                toReturn = "Case " + ((ExpNode.IdentifierNode) condition).getId() + " of\n" + statements.toString();
                 if (this.defaultStmt != null) {
                     toReturn += " Default:" + this.defaultStmt;
                 }
             } else {
-                toReturn = "Case " + caseValue + " of\n" + statements.toString();
+                toReturn = "Case " + condition + " of\n" + statements.toString();
                 if (this.defaultStmt != null) {
                     toReturn += " Default:" + this.defaultStmt;
                 }
@@ -271,6 +283,10 @@ public abstract class StatementNode {
             super(loc);
             this.lValue = lValue;
             this.stmts = stmts;
+        }
+
+        public StatementNode getStatements() {
+            return this.stmts;
         }
 
         @Override

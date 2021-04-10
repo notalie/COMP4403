@@ -145,23 +145,54 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         for (int i = 0; i < node.getStatements().size(); i++) {
             SingleAssignmentNode s = node.getStatements().get(i);
-            String variableName = ((ExpNode.IdentifierNode) s.getVariable()).getId();
-            variableNameSet.add(variableName);
+            s.accept(this); // parse statement
 
+            String variableName = s.getVariableName(); // get name and add it to the set
+            variableNameSet.add(variableName);
             if (variableNameSet.size() != i + 1) {  // set has a repeated identifier
                 staticError(variableName + " assigned more than once" , s.getLocation());
             }
-            s.accept(this); // if all is good, visit the assignment node
         }
         endCheck("Assignment");
     }
 
     public void visitBranchNode(StatementNode.CaseBranchNode node) {
         // TODO
+        beginCheck("Branch");
+        node.getLValue().evaluate();
+//        staticError("case label type does not match case expression type");
+        visitStatementListNode((ListNode) node.getStatements());
+        endCheck("Branch");
+
     }
 
     public void visitCaseNode(StatementNode.CaseNode node) {
-        // TODO
+        beginCheck("Case");
+        // TODO - need to check stuff, temporary fix for interpreting
+
+        ExpNode cond = node.getCondition();
+        cond = cond.transform(this);
+
+        Type.ScalarType refType = (Type.ScalarType)cond.getType().optDereferenceType();
+
+        if (refType.toString() == "boolean") {
+            node.setCondition(Predefined.BOOLEAN_TYPE.coerceExp(cond));
+        } else {
+            node.setCondition(Predefined.INTEGER_TYPE.coerceExp(cond));
+        }
+
+        for (StatementNode stmt : node.getStatements()) { // visit each statement
+            stmt.accept(this);
+            // TODO: Check for double up identifiers
+            if (stmt instanceof CaseBranchNode &&
+                    !refType.getScalarType().containsElement(((CaseBranchNode) stmt).getLValue().type,
+                            ((CaseBranchNode) stmt).getLValue().getValue())) {
+                staticError("case label type does not match case expression type", stmt.getLocation());
+            }
+        }
+
+        endCheck("Case");
+
     }
 
     /**
@@ -202,10 +233,9 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
      */
     public void visitSkipNode(StatementNode.SkipNode node) {
         beginCheck("Skip");
-        // Don't do anything
+        // Don't do anything, no visiting needed
         endCheck("Skip");
     }
-
 
     /**
      * Call statement node

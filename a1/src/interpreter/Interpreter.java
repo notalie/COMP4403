@@ -157,15 +157,34 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
     }
 
     public void visitBranchNode(StatementNode.CaseBranchNode node) {
-        // TODO
         beginExec("Branch");
+        visitStatementListNode((StatementNode.ListNode)node.getStatements());
         endExec("Branch");
     }
 
 
     public void visitCaseNode(StatementNode.CaseNode node) {
-        // TODO
+        //TODO
         beginExec("Case");
+        boolean foundStatement = false;
+        int caseValue = node.getCondition().evaluate(this).getInteger();
+
+        for (StatementNode stmt : node.getStatements()) {
+            StatementNode.CaseBranchNode caseBranch = (StatementNode.CaseBranchNode) stmt;
+            int toCompare = caseBranch.getLValue().getValue();
+            if (caseValue == toCompare) { // If the case x == when x
+                visitBranchNode(caseBranch);
+                foundStatement = true;
+            }
+        }
+        if (!foundStatement && node.hasDefault()) {
+            visitStatementListNode((StatementNode.ListNode)node.getDefault());
+        } else if (!foundStatement) {
+            String errorMessage = "expression in case doesn't match any label\n" +
+                    "PROC <main> : level 1\n";
+            System.out.println(node.getCondition());
+            errors.fatal(errorMessage, node.getCondition().getLocation());
+        }
         endExec("Case");
     }
 

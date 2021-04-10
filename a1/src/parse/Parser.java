@@ -515,10 +515,8 @@ public class Parser {
 
                     // Initialize result to an empty list of case statements
                     List<StatementNode> cases = new LinkedList<>();
-                    StatementNode s = parseCaseBranch(recoverSet);
-                    cases.add(s);
                     while (tokens.isMatch(Token.KW_WHEN)) {
-                        s = parseCaseBranch(recoverSet);
+                        StatementNode s = parseCaseBranch(recoverSet);
                         cases.add(s);
                     }
 
@@ -601,8 +599,8 @@ public class Parser {
                             return parseCompoundStatement(recoverSet);
                         case KW_SKIP:
                             return parseSkipStatement(recoverSet);
-//                        case KW_CASE: //TODO: Take out/put in to pass the tests lol
-//                            return parseCaseStatement(recoverSet);
+                        case KW_CASE:
+                            return parseCaseStatement(recoverSet);
                         default:
                             fatal("parseStatement");
                             // To keep the Java compiler happy - can't reach here
