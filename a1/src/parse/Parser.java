@@ -506,7 +506,8 @@ public class Parser {
     private StatementNode parseCaseStatement(TokenSet recoverSet) {
         return stmt.parse("Case Statement", Token.KW_CASE, recoverSet,
                 () -> {
-                    StatementNode defaultCase = null; // might not be needed
+                    // default is set to null so that the case node will know if there is a default case or not
+                    StatementNode defaultCase = null;
                     Location loc = tokens.getLocation();
 
                     tokens.match(Token.KW_CASE);

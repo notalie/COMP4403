@@ -214,7 +214,7 @@ public abstract class StatementNode {
     }
 
     /**
-     * Tree node representing a branch statement
+     * Tree node representing a case statement
      */
     public static class CaseNode extends StatementNode {
         private ExpNode condition;
@@ -273,7 +273,7 @@ public abstract class StatementNode {
     }
 
     /**
-     * Tree node representing a branch statement
+     * Tree node representing a branch case
      */
     public static class CaseBranchNode extends StatementNode {
         ConstExp lValue;

@@ -116,7 +116,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
 
     /**
-     * Assignment statement node
+     * Single assignment node
      */
     public void visitSingleAssignmentNode(StatementNode.SingleAssignmentNode node) {
         beginCheck("Assignment");
@@ -140,9 +140,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("Assignment");
     }
 
+    /**
+     * Assignment statement node
+     */
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginCheck("Assignment");
-        // any duplicates will not be added so the size of the set will be lower
+        // keeps track of duplicates
         HashSet<String> variableNameSet = new HashSet<>();
 
         for (SingleAssignmentNode s : node.getStatements()) {
@@ -157,28 +160,37 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         endCheck("Assignment");
     }
 
+    /**
+     * Case branch node
+     */
     public void visitBranchNode(StatementNode.CaseBranchNode node) {
         beginCheck("Branch");
+        // Visit all statements in each branch
         visitStatementListNode((ListNode) node.getStatements());
         endCheck("Branch");
 
     }
 
+    /**
+     * Case statement node
+     */
     public void visitCaseNode(StatementNode.CaseNode node) {
         beginCheck("Case");
+        // Keep track of unique case values in case of double ups
         HashSet<String> caseLabelSet = new HashSet<>();
 
         ExpNode cond = node.getCondition();
         cond = cond.transform(this);
-        Type.ScalarType refType = (Type.ScalarType)cond.getType().optDereferenceType();
 
+        // Get the type of condition so that it can be coerced to the right type
+        Type.ScalarType refType = (Type.ScalarType)cond.getType().optDereferenceType();
         if (refType.toString() == "boolean") {
             node.setCondition(Predefined.BOOLEAN_TYPE.coerceExp(cond));
         } else {
             node.setCondition(Predefined.INTEGER_TYPE.coerceExp(cond));
         }
 
-        for (StatementNode stmt : node.getStatements()) { // visit each statement
+        for (StatementNode stmt : node.getStatements()) { // visit each case branch
             ConstExp caseLabel = ((CaseBranchNode)stmt).getLValue();
             // Get the name of the variable, need to use a string as false == 0 and true == 1
             // which will overlap with integers 0 and 1
@@ -192,16 +204,13 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 staticError("repeated label in case branch", stmt.getLocation());
             }
 
-            if (stmt instanceof CaseBranchNode &&
-                    !refType.getScalarType().containsElement(((CaseBranchNode) stmt).getLValue().type,
-                            ((CaseBranchNode) stmt).getLValue().getValue())) {
+            if (!refType.getScalarType().containsElement(((CaseBranchNode) stmt).getLValue().type,
+                    ((CaseBranchNode) stmt).getLValue().getValue())) {
                 staticError("case label type does not match case expression type", stmt.getLocation());
             }
-            caseLabelSet.add(caseValue);
+            caseLabelSet.add(caseValue); // add the name to the set so that it can be checked for duplicates
         }
-
         endCheck("Case");
-
     }
 
     /**

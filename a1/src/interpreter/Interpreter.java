@@ -141,6 +141,7 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         // Keeps track of every statement and their evaluated expression
         HashMap<StatementNode.SingleAssignmentNode, Value> assignMap = new HashMap<>();
         beginExec("Assignment");
+
         // Get the expression of each statement and add it to the map
         for (StatementNode.SingleAssignmentNode statement : node.getStatements()) {
             Value value = statement.getExp().evaluate(this);
@@ -156,26 +157,30 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         endExec("Assignment");
     }
 
+    /**
+     * Execute code for a branch case statement
+     */
     public void visitBranchNode(StatementNode.CaseBranchNode node) {
         beginExec("Branch");
+        // Visit all statements within the branch node
         visitStatementListNode((StatementNode.ListNode)node.getStatements());
         endExec("Branch");
     }
 
-
+    /**
+     * Execute code for a case statement
+     */
     public void visitCaseNode(StatementNode.CaseNode node) {
         beginExec("Case");
         boolean foundStatement = false;
-        int caseValue = node.getCondition().evaluate(this).getInteger();
-        //TODO: Keep track of each constant
-        HashSet<String> caseLabelTracker = null;
+        int caseValue = node.getCondition().evaluate(this).getInteger(); // get main value to compare
 
         for (int i = 0; i < node.getStatements().size(); i++) {
             StatementNode.CaseBranchNode caseBranch = (StatementNode.CaseBranchNode) node.getStatements().get(i);
-            int toCompare = caseBranch.getLValue().getValue();
+            int toCompare = caseBranch.getLValue().getValue(); // get value to compare to the case value
             if (caseValue == toCompare) { // If the case x == when x
                 visitBranchNode(caseBranch);
-                foundStatement = true;
+                foundStatement = true; // we've found something that matches
             }
         }
 
@@ -183,14 +188,7 @@ public class Interpreter implements StatementVisitor, ExpTransform<Value> {
         if (!foundStatement && node.hasDefault()) {
             visitStatementListNode((StatementNode.ListNode)node.getDefault());
         } else if (!foundStatement) { // Nothing has been executed, fatal error
-            String errorMessage = "expression in case doesn't match any label\n" +
-                    "PROC <main> : level 1\n";
-            if (node.getCondition().getClass() == ExpNode.DereferenceNode.class) {
-                ExpNode.DereferenceNode castedNode = (ExpNode.DereferenceNode) node.getCondition();
-                errorMessage += "\t" + castedNode.getLeftValue().toString() + " = " +
-                        node.getCondition().evaluate(this).getInteger() + "\n";
-            }
-            errors.fatal(errorMessage, node.getCondition().getLocation());
+            runtime("expression in case doesn't match any label", node.getCondition().getLocation(), currentFrame);
         }
         endExec("Case");
     }
