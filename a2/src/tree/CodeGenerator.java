@@ -373,7 +373,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         beginGen("Reference");
 
         Type.RecordType type = node.getLeftValue().getType().getRecordType();
-        Code code = node.getLeftValue().genCode(this); // gen code for lVal
+        Code code = node.getLeftValue().genCode(this); // gen code for the left value
         code.genLoadConstant(type.getOffset(node.getId())); // get offset of field in record
         code.generateOp(Operation.ADD); // add offset of the field value to the record location
 
