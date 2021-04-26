@@ -1,0 +1,15 @@
+type
+    T1 = ^int;
+    T2 = ^int;
+    T3 = ^boolean;
+var
+    t1: T1;
+    t2: T2;
+    t3: T3;
+
+begin
+    t2 := new T1;
+    t1 := t2;
+    t1 := t3; // invalid - pointer to different types
+    t2 := t3  // invalid - pointer to different types
+end

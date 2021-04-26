@@ -1,0 +1,10 @@
+Compiling test-rec-04.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+57600
+5
+
+Terminated
+No errors detected.

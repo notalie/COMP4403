@@ -1,0 +1,25 @@
+type
+    RT = record
+          x: int;
+          y: int
+         end;
+    L = ^RT;
+var 
+    r1: RT;
+    r2: RT;
+    p: L;
+    
+procedure proc() =
+ begin
+  r1 := RT{ 103, 102 };
+  r2 := r1;
+  write r2.x;  // 103
+  write r2.y;  // 102
+  p := new L;
+  p^ := RT{ 101, 100 };
+  write p^.x;  // 101
+  write p^.y   // 100
+ end;
+begin
+  call proc()
+end

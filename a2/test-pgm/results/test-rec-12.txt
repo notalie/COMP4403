@@ -1,0 +1,6 @@
+Compiling test-rec-12.pl0
+     4          end;   // syntax error - must have at least 1 field
+******          ^  Error: PL0 syntax error
+Parsing complete
+Static semantic analysis complete
+1 error detected.

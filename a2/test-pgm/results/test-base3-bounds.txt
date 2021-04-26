@@ -1,0 +1,13 @@
+Compiling test-base3-bounds.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+102
+101
+100
+
+Runtime error: expression out of bounds
+
+Terminated
+No errors detected.

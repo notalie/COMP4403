@@ -1,0 +1,6 @@
+Compiling test-rec-02-dup.pl0
+Parsing complete
+     5           x: int  // x repeated field name
+******           ^  Error: duplicate field
+Static semantic analysis complete
+1 error detected.

@@ -1,0 +1,17 @@
+var glob : int;
+procedure tl() =
+    var top : int;
+    procedure recur() =
+        var local : int;
+        begin
+            write local;
+            local := local + 1;
+            top := local
+        end;
+    begin
+        call recur();
+        write top
+    end;
+begin
+    call tl()
+end

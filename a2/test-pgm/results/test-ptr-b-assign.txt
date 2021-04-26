@@ -1,0 +1,8 @@
+Compiling test-ptr-b-assign.pl0
+Parsing complete
+    13     t1 := t3; // invalid - pointer to different types
+******           ^  Error: cannot treat ^boolean as ^int
+    14     t2 := t3  // invalid - pointer to different types
+******           ^  Error: cannot treat ^boolean as ^int
+Static semantic analysis complete
+2 errors detected.

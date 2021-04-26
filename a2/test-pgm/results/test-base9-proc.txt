@@ -1,0 +1,11 @@
+Compiling test-base9-proc.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+2
+
+Runtime error: divide by zero
+
+Terminated
+No errors detected.

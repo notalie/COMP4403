@@ -1,0 +1,9 @@
+Compiling test-ptr-6-equal-sem.pl0
+Parsing complete
+    11     if x = y then write 1 else write 2;  // type mismatch in comparison
+******          ^  Error: Type of argument (ref(T)*ref(S)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean) & ((T*T)->boolean) & ((S*S)->boolean))
+    13     if nil < x then write 1 else write 2 // less not defined for pointers
+******        ^  Error: cannot coerce nil_type to int
+******              ^  Error: cannot coerce T to int
+Static semantic analysis complete
+3 errors detected.

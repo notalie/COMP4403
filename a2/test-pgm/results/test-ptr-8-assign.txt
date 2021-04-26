@@ -1,0 +1,8 @@
+Compiling test-ptr-8-assign.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+
+Terminated
+No errors detected.

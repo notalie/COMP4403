@@ -1,0 +1,11 @@
+Compiling test-ptr-5-ptrptr.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+100
+
+Runtime error: nil pointer dereference
+
+Terminated
+No errors detected.

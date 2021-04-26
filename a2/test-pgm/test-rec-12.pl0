@@ -1,0 +1,10 @@
+// Incorrect program with 0 fields
+type
+    RT = record
+         end;   // syntax error - must have at least 1 field
+var
+    r1: RT;
+    r2: RT;
+begin
+    write 100
+end

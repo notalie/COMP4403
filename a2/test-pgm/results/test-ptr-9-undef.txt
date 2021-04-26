@@ -1,0 +1,7 @@
+Compiling test-ptr-9-undef.pl0
+Parsing complete
+     2   P = ^X;      // undefined type X
+******        ^  Error: pointer base type not defined
+******        ^  Error: undefined type: X
+Static semantic analysis complete
+2 errors detected.

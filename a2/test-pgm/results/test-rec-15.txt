@@ -1,0 +1,6 @@
+Compiling test-rec-15.pl0
+Parsing complete
+    18     r := p;     // r and p have different types
+******          ^  Error: cannot treat PT as RT
+Static semantic analysis complete
+1 error detected.

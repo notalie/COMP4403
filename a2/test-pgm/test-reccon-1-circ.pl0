@@ -1,0 +1,19 @@
+// Circularly defined records
+type
+    RT = record
+          x: int;
+          y: RX     // circularly defined
+         end;
+    RX = record
+          r: RT;    // circularly defined
+          z : int
+         end;
+var 
+    r1: RT;
+    r2: RT;
+begin
+  r1 := RT{ 101, 100 };
+  r2 := r1;
+  write r2.x;  
+  write r2.y
+end

@@ -1,0 +1,21 @@
+// Two names for same record type
+type
+    RT = record
+          x: int;
+          y: int
+         end;
+    RX = RT;
+    L = ^RX;
+var 
+    r1: RT;
+    r2: RX;
+    p: L;
+begin
+  p := new L;
+  p^ := RX{ 103, 102 };
+  write p^.x;  // 103
+  write p^.y;  // 102
+  p^ := RX{ 101, 100 };
+  write p^.x;  // 101
+  write p^.y   // 100
+end

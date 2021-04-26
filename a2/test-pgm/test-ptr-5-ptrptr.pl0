@@ -1,0 +1,16 @@
+type
+  T1 = ^int;
+  T2 = ^T1;
+var
+  x: T1;
+  y: T2;
+begin
+  x := new T1;
+  x^ := 99;
+  y := new T2;
+  y^ := x;
+  y^^ := 100;
+  write x^;  // writes out 100
+  y^ := nil;
+  write y^^  // runtime nil pointer dereference
+end

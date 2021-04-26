@@ -1,0 +1,34 @@
+// Correct program with nested records
+type
+  Day = [1..31];
+  Month = [1..12];
+  Date = record
+           d: Day;
+           m: Month;
+           y: int
+         end;
+  Hour = [0..23];
+  Minute = [0..59];
+  Second = [0..59];
+  Time = record
+           h: Hour;
+           m: Minute;
+           s: Second
+         end;
+  DateTime = record
+               t: Time;
+               d: Date
+             end;
+var 
+  dt: DateTime;
+begin
+  dt.d.y := 2019;
+  dt.d.m := 5;
+  dt.d.d := 1;
+  dt.t.h := 16;
+  dt.t.m := 0;
+  dt.t.s := 0;
+  write dt.t.s + 60*(dt.t.m + 60* dt.t.h); // 57600
+  write dt.d.m + dt.t.m  // 5
+end
+

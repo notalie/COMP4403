@@ -1,0 +1,11 @@
+Compiling test-rec-05.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+1
+5
+2019
+
+Terminated
+No errors detected.

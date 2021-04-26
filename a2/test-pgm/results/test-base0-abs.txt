@@ -1,0 +1,9 @@
+Compiling test-base0-abs.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+100
+
+Terminated
+No errors detected.

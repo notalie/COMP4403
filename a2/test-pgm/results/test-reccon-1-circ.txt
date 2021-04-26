@@ -1,0 +1,6 @@
+Compiling test-reccon-1-circ.pl0
+Parsing complete
+     5           y: RX     // circularly defined
+******              ^  Error: RX is circularly defined
+Static semantic analysis complete
+1 error detected.

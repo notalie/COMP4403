@@ -1,0 +1,12 @@
+type
+  PInt = ^int;
+var
+  p: PInt;
+procedure q() =
+  begin
+    p := nil;
+    write p^  // nil pointer dereference (at runtime)
+  end;
+begin
+  call q()
+end

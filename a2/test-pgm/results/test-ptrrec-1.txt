@@ -1,0 +1,12 @@
+Compiling test-ptrrec-1.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+103
+102
+101
+100
+
+Terminated
+No errors detected.

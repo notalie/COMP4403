@@ -1,0 +1,16 @@
+// valid program
+type
+  PInt = ^int;
+var
+  p: PInt;
+procedure q() =
+  begin
+    p := new PInt;
+    p^ := 101;
+    write p^   // 101
+  end;
+begin
+  call q();
+  p^ := p^-1;
+  write p^     // 100
+end

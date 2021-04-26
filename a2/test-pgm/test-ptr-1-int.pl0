@@ -1,0 +1,10 @@
+type
+    T = ^int;
+var
+    n: int;
+    x: T;
+begin
+    x := new T;
+    x^ := 100;
+    write x^
+end

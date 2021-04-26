@@ -1,0 +1,7 @@
+Compiling test-rec-08.pl0
+     6           y: int;  // syntax error
+******           ^  Error: PL0 syntax error
+    16 
+****** ^  Error: PL0 unrecovered syntax error
+Parsing complete
+2 errors detected.

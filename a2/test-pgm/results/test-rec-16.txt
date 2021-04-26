@@ -1,0 +1,6 @@
+Compiling test-rec-16.pl0
+Parsing complete
+    14   if r1 = r2 then // cannot compare records
+******         ^  Error: Type of argument (ref(RT1)*ref(RT1)) does not match (((boolean*boolean)->boolean) & ((nil_type*nil_type)->boolean) & ((int*int)->boolean))
+Static semantic analysis complete
+1 error detected.

@@ -1,0 +1,10 @@
+Compiling test-ptr-3-nil.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+
+Runtime error: nil pointer dereference
+
+Terminated
+No errors detected.

@@ -1,0 +1,10 @@
+Compiling test-ptr-4-deref.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+101
+100
+
+Terminated
+No errors detected.

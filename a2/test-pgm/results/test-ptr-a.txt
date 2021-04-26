@@ -1,0 +1,6 @@
+Compiling test-ptr-a.pl0
+Parsing complete
+     2     Q = ^X;   // X undefined
+******          ^  Error: pointer base type not defined
+Static semantic analysis complete
+1 error detected.

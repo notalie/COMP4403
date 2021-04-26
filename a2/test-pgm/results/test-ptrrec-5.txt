@@ -1,0 +1,11 @@
+Compiling test-ptrrec-5.pl0
+Parsing complete
+     5   P = Q;        // circularly defined
+******       ^  Error: Q is circularly defined
+    12   A = ^X;       // X undefined
+******        ^  Error: pointer base type not defined
+******        ^  Error: undefined type: X
+    21   write x^     // type must be pointer
+******         ^  Error: type must be a pointer
+Static semantic analysis complete
+4 errors detected.

@@ -1,0 +1,7 @@
+Compiling test-rec-10.pl0
+     6 var 
+****** ^  Error: PL0 syntax error
+    11 
+****** ^  Error: PL0 unrecovered syntax error
+Parsing complete
+2 errors detected.

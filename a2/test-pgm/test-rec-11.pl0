@@ -1,0 +1,19 @@
+// Record assignment with 3 fields
+type
+    RT = record
+          x: int;
+          y: int;
+          z: int
+         end;
+var 
+    r1: RT;
+    r2: RT;
+begin
+  r1.x := 102;
+  r1.y := 101;
+  r1.z := 100;
+  r2 := r1;
+  write r2.x;  // 102
+  write r2.y;  // 101
+  write r2.z   // 100
+end

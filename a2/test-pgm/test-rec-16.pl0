@@ -1,0 +1,20 @@
+// Incorrect: record comparison not supported
+type
+    RT1 = record
+            x: int;
+            y: boolean
+          end;
+var 
+    r1: RT1;
+    r2: RT1;
+begin
+  r1.x := 100;
+  r1.y := true;
+  r2 := r1;
+  if r1 = r2 then // cannot compare records
+    write 99
+  else
+    write 98;
+  r1 := r2 
+end
+

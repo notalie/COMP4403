@@ -1,0 +1,10 @@
+Compiling test-rec-09.pl0
+     5           x int;  // syntax error
+******             ^  Error: PL0 syntax error
+    12   r y := 100;  //syntax error
+******     ^  Error: PL0 syntax error
+    13   write r.;  //syntax error
+******           ^  Error: PL0 syntax error
+Parsing complete
+Static semantic analysis complete
+3 errors detected.
