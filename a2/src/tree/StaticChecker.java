@@ -444,6 +444,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         } else {
             node.setType(type.getBaseType()); // dereference the type that was being pointed to
             node.setType(new Type.ReferenceType(node.getType())); // make it a reference type
+            node.getType().resolveType();
         }
         endCheck("PointerNode");
         return node;
