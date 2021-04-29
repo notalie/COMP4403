@@ -1290,7 +1290,7 @@ class CUP$CUPParser$actions {
 		Location lvalxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).xright;
 		ExpNode lval = (ExpNode)((java_cup.runtime.Symbol) CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).value;
 		
-            RESULT = new ExpNode.DereferenceNode(lval);
+            RESULT = new ExpNode.PointerNode(lval);
         
               CUP$CUPParser$result = parser.getSymbolFactory().newSymbol("LValue",35, ((java_cup.runtime.Symbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)), ((java_cup.runtime.Symbol)CUP$CUPParser$stack.peek()), RESULT);
             }
@@ -1614,12 +1614,14 @@ class CUP$CUPParser$actions {
           case 81: // Factor ::= KW_NEW TypeIdentifier 
             {
               ExpNode RESULT =null;
+		Location nxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).xleft;
+		Location nxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).xright;
+		Object n = (Object)((java_cup.runtime.Symbol) CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).value;
 		Location typexleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.peek()).xleft;
 		Location typexright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.peek()).xright;
 		Type type = (Type)((java_cup.runtime.Symbol) CUP$CUPParser$stack.peek()).value;
 		
-            // TODO
-            RESULT = new ExpNode.ConstNode(typexleft, type, 0);
+            RESULT = new ExpNode.NewNode(nxleft, type);
         
               CUP$CUPParser$result = parser.getSymbolFactory().newSymbol("Factor",30, ((java_cup.runtime.Symbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)), ((java_cup.runtime.Symbol)CUP$CUPParser$stack.peek()), RESULT);
             }

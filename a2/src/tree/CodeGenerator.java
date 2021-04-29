@@ -355,6 +355,41 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
+    //TODO
+    public Code visitNewNode(ExpNode.NewNode node) {
+        beginGen("NewNode");
+        Code code = new Code();
+        // This isn't working for some reason?
+        code.genLoadConstant(node.getType().getSpace());
+        code.generateOp(Operation.ALLOC_HEAP);
+        endGen("NewNode");
+        return code;
+    }
+
+    public Code visitPointerNode(ExpNode.PointerNode node) {
+        beginGen( "PointerNode" );
+        Code code = node.getLeftValue().genCode( this ); // Add value^ to the stack
+        code.genLoad(node.getLeftValue().getType()); // add type to check
+        code.genLoadConstant(StackMachine.NULL_ADDR); // add the nill type
+        code.generateOp(Operation.EQUAL); // see if the type being pointed to is of type nil
+
+        // Branch code for nil branch in pointer node that will stop the program
+        Code nilBranch = new Code();
+        nilBranch.genLoadConstant(StackMachine.NIL_POINTER);
+        nilBranch.generateOp(Operation.STOP);
+
+        code.genLoadConstant(nilBranch.size()); // add the branch to the stack
+
+        code.generateOp(Operation.BR_FALSE); // branch over the nilBranch if it is not nil
+        code.append(nilBranch); // add the branch to the stack, similar to t6
+
+        code.append(node.getLeftValue().genCode(this)); // add the left value back to the stack
+        code.genLoad(node.getLeftValue().getType()); // add the type and turn it into a local variable
+        code.generateOp(Operation.TO_LOCAL);
+        endGen( "PointerNode" );
+        return code;
+    }
+
     /**
      * Generate code to dereference an RValue.
      */
@@ -371,12 +406,10 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
      */
     public Code visitReferenceNode(ExpNode.ReferenceNode node) {
         beginGen("Reference");
-
         Type.RecordType type = node.getLeftValue().getType().getRecordType();
         Code code = node.getLeftValue().genCode(this); // gen code for the left value
         code.genLoadConstant(type.getOffset(node.getId())); // get offset of field in record
-        code.generateOp(Operation.ADD); // add offset of the field value to the record location
-
+        code.generateOp(Operation.ADD);
         code.genComment("visiting reference node");
         endGen("Reference");
         return code;

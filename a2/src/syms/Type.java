@@ -224,6 +224,7 @@ public abstract class Type {
              */
             try {
                 newExp = this.coerce(newExp);
+
             } catch (IncompatibleTypes e) {
                 errors.debugMessage("Failed to coerce " + newExp + " to " +
                         this.getName());

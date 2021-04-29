@@ -23,4 +23,8 @@ public interface ExpTransform<ResultType> {
     ResultType visitWidenSubrangeNode(ExpNode.WidenSubrangeNode node);
 
     ResultType visitReferenceNode(ExpNode.ReferenceNode node);
+
+    ResultType visitNewNode(ExpNode.NewNode node);
+
+    ResultType visitPointerNode(ExpNode.PointerNode node);
 }

@@ -159,7 +159,7 @@ non terminal                  VarDeclSeq,
                               VarDecl;
 non terminal DeclNode.ProcedureNode  ProcedureDef;
 non terminal SymEntry.ProcedureEntry ProcedureHead;
-non terminal 
+non terminal
                               FormalParamList;
 non terminal
                               ActualParamList;
@@ -532,7 +532,7 @@ LValue ::= IDENTIFIER:id
         :}
     | LValue:lval POINTER
         {:
-            RESULT = new ExpNode.DereferenceNode(lval);
+            RESULT = new ExpNode.PointerNode(lval);
         :}
     | error:e
         {:
@@ -648,10 +648,9 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = lval;
         :}
-    | KW_NEW TypeIdentifier:type
+    | KW_NEW:n TypeIdentifier:type
         {:
-            // TODO
-            RESULT = new ExpNode.ConstNode(typexleft, type, 0);
+            RESULT = new ExpNode.NewNode(nxleft, type);
         :}
     | TypeIdentifier:type LCURLY ExpList RCURLY
        {:

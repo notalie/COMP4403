@@ -2,6 +2,7 @@ package tree;
 
 import java.util.*;
 
+import source.ErrorHandler;
 import source.VisitorDebugger;
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -267,9 +268,27 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         /* Check the arguments to the operator */
         ExpNode left = node.getLeft().transform(this);
         ExpNode right = node.getRight().transform(this);
+
         /* Lookup the operator in the symbol table to get its type.
          * The operator may not be defined.
          */
+
+        if (left.getType().getPointerType() != null) {
+            Type newNodePointerType = left.getType().getPointerType();
+            Type.ProductType pointerProductType = new Type.ProductType(newNodePointerType, newNodePointerType);
+            Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
+            currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
+            currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
+        }
+
+        if (right.getType().getPointerType() != null) {
+            Type newNodePointerType = right.getType().getPointerType();
+            Type.ProductType pointerProductType = new Type.ProductType(newNodePointerType, newNodePointerType);
+            Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
+            currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
+            currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
+        }
+
         SymEntry.OperatorEntry opEntry = currentScope.lookupOperator(node.getOp().getName());
         if (opEntry == null) {
             staticError("operator not defined", node.getLocation());
@@ -399,6 +418,36 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
+    //TODO
+    public ExpNode visitNewNode(ExpNode.NewNode node) {
+        beginCheck("NewNode");
+        Type type = node.getNewNodeType().resolveType();
+        node.setType(type); // Resolve and set new type
+        if (currentScope.lookupType(type.getName()) == null) { // type not defined
+            staticError("Undefined type; " +
+                    currentScope.lookupType(type.getName()), node.getLocation());
+        }
+        endCheck("NewNode");
+        return node;
+    }
+
+    public ExpNode visitPointerNode(ExpNode.PointerNode node) {
+        beginCheck("PointerNode"); // e.g. a^
+        ExpNode lVal = node.getLeftValue().transform(this);
+        node.setLeftValue(lVal);
+
+        Type.PointerType type = lVal.getType().getPointerType();
+        if (type == null) { // Not a reference type
+            staticError("cannot reference an expression which is not a pointer type",
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        } else {
+            node.setType(type.getBaseType()); // dereference the type that was being pointed to
+            node.setType(new Type.ReferenceType(node.getType())); // make it a reference type
+        }
+        endCheck("PointerNode");
+        return node;
+    }
 
     /**
      * A DereferenceNode allows a variable (of type ref(int) say) to be
@@ -422,25 +471,31 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
-    //TODO
     public ExpNode visitReferenceNode(ExpNode.ReferenceNode node) {
         beginCheck("Reference");
         ExpNode lVal = node.getLeftValue().transform(this);
         node.setLeftValue(lVal);
-
         Type.RecordType type = lVal.getType().getRecordType();
-        if (type == null) { // Not a reference type
+
+        if (type != null) { // Is a record type
+            if (!type.containsField(node.getId())) { // reference node is not in the record field
+                staticError("record does not contain attribute " + node.getId(),
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+            } else { // expected behaviour
+                node.setType(type.getField(node.getId()).getType()); // set as field type
+                node.setType(new Type.ReferenceType(node.getType())); // set as reference type
+            }
+        } else { // Not a record type
+            if (node.getType() == Type.ERROR_TYPE) { // Don't throw the error, there's already an error
+                endCheck("Reference");
+                return node;
+            }
             staticError("cannot reference an expression which is not a reference",
                     node.getLocation());
             node.setType(Type.ERROR_TYPE);
-        } else if (!type.containsField(node.getId())) { // reference node is not in the record field
-            staticError("record does not contain attribute " + node.getId(),
-                    node.getLocation());
-            node.setType(Type.ERROR_TYPE);
-        } else { // Initial parsing good
-            // Need to set the type of the node to be a reference to the field node
-            node.setType(new Type.ReferenceType(type.getRecordType().getField(node.getId()).getType()));
         }
+
         endCheck("Reference");
         return node;
     }

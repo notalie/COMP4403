@@ -357,9 +357,79 @@ public abstract class ExpNode {
 
     /**
      * Tree node for the coercion representing a dereference of an LValue.
-     * A Reference node references an ExpNode node and represents the
-     * reference of the "address" given by the leftValue to give the value
+     * A Dereference node references an ExpNode node and represents the
+     * dereference of the "address" given by the leftValue to give the value
      * at that address. The type of the leftValue must be a ReferenceType.
+     */
+    public static class PointerNode extends ExpNode {
+        /**
+         * LValue to dereference
+         */
+        private ExpNode leftValue;
+
+        /* The type of the Dereference node is the base type of the type
+         * of the expression being dereferenced.
+         */
+        public PointerNode(ExpNode exp) {
+            super(exp.getLocation(), exp.getType().optDereferenceType());
+            this.leftValue = exp;
+        }
+
+        public ExpNode getLeftValue() {
+            return leftValue;
+        }
+
+        public void setLeftValue(ExpNode leftValue) {
+            this.leftValue = leftValue;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitPointerNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitPointerNode(this);
+        }
+
+        @Override
+        public String toString() {
+            return "Dereference(" + leftValue + ")";
+        }
+    }
+
+    /**
+     * Node created when 'new' is called
+     */
+    public static class NewNode extends ExpNode {
+
+        private Type type;
+
+        public NewNode(Location loc, Type type) {
+            super(loc, new Type.PointerType(loc, new Type.PointerType(loc, type)));
+            this.type = type;
+        }
+
+        public Type getNewNodeType() {
+            return this.type;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) { return visitor.visitNewNode(this); }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitNewNode(this);
+        }
+
+        @Override
+        public Location getLocation() {return super.getLocation();}
+    }
+
+    /**
+     * A reference node that will get the value of a record when `x.y` is called.
+     * It will not return the address unless the `x` is a pointer to a record type
      */
     public static class ReferenceNode extends ExpNode {
         /**
