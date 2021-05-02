@@ -355,17 +355,24 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
-    //TODO
+    /**
+     * Generate code for a new node. Need to return the address of the new node
+     */
     public Code visitNewNode(ExpNode.NewNode node) {
         beginGen("NewNode");
         Code code = new Code();
-        // This isn't working for some reason?
-        code.genLoadConstant(node.getType().getSpace());
-        code.generateOp(Operation.ALLOC_HEAP);
+        Type.PointerType type = node.getType().getPointerType(); // Get type that is being generated in the NewNode
+        // Load the size of the pointer base type. Don't want the pointer type directly as it's a little bit bigger
+        // and will cause overflow errors
+        code.genLoadConstant(type.getBaseType().getSpace());
+        code.generateOp(Operation.ALLOC_HEAP); // allocate on the heap as specified
         endGen("NewNode");
         return code;
     }
 
+    /**
+     * Generate code for a pointer node
+     */
     public Code visitPointerNode(ExpNode.PointerNode node) {
         beginGen( "PointerNode" );
         Code code = node.getLeftValue().genCode( this ); // Add value^ to the stack

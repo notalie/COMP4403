@@ -272,23 +272,6 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         /* Lookup the operator in the symbol table to get its type.
          * The operator may not be defined.
          */
-
-        if (left.getType().getPointerType() != null) {
-            Type newNodePointerType = left.getType().getPointerType();
-            Type.ProductType pointerProductType = new Type.ProductType(newNodePointerType, newNodePointerType);
-            Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
-            currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
-            currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
-        }
-
-        if (right.getType().getPointerType() != null) {
-            Type newNodePointerType = right.getType().getPointerType();
-            Type.ProductType pointerProductType = new Type.ProductType(newNodePointerType, newNodePointerType);
-            Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
-            currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
-            currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
-        }
-
         SymEntry.OperatorEntry opEntry = currentScope.lookupOperator(node.getOp().getName());
         if (opEntry == null) {
             staticError("operator not defined", node.getLocation());
@@ -322,6 +305,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                      * exception will be trapped and an alternative
                      * function type within the intersection tried.
                      */
+
                     ExpNode newLeft = argTypes.get(0).coerceToType(left);
                     ExpNode newRight = argTypes.get(1).coerceToType(right);
                     /* Both coercions succeeded if we get here else exception was thrown */
@@ -418,19 +402,23 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
-    //TODO
+    /**
+     * New node static checking, e.g. q := new List;
+     */
     public ExpNode visitNewNode(ExpNode.NewNode node) {
         beginCheck("NewNode");
-        Type type = node.getNewNodeType().resolveType();
-        node.setType(type); // Resolve and set new type
-        if (currentScope.lookupType(type.getName()) == null) { // type not defined
+        node.setType(node.getNewNodeType().resolveType()); // Resolve and set new type
+        if (currentScope.lookupType(node.getType().getName()) == null) { // type not defined within the scope
             staticError("Undefined type; " +
-                    currentScope.lookupType(type.getName()), node.getLocation());
+                    currentScope.lookupType(node.getType().getName()), node.getLocation());
         }
         endCheck("NewNode");
         return node;
     }
 
+    /**
+     * Pointer node static checking, e.g. a^
+     */
     public ExpNode visitPointerNode(ExpNode.PointerNode node) {
         beginCheck("PointerNode"); // e.g. a^
         ExpNode lVal = node.getLeftValue().transform(this);
@@ -438,7 +426,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         Type.PointerType type = lVal.getType().getPointerType();
         if (type == null) { // Not a reference type
-            staticError("cannot reference an expression which is not a pointer type",
+            staticError("type must be a pointer",
                     node.getLocation());
             node.setType(Type.ERROR_TYPE);
         } else {
@@ -472,6 +460,9 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
+    /**
+     * Reference node static checking, e.g. a.b
+     */
     public ExpNode visitReferenceNode(ExpNode.ReferenceNode node) {
         beginCheck("Reference");
         ExpNode lVal = node.getLeftValue().transform(this);

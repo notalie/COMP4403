@@ -394,7 +394,14 @@ Field ::= IDENTIFIER:id COLON TypeIdentifier:type
 
 PointerType ::= POINTER:pointer TypeIdentifier:type
         {:
-            RESULT = new Type.PointerType(pointerxleft, type);
+            RESULT = new Type.PointerType(pointerxleft, type); // Create a new pointer type
+            // Create a product type using the new type created
+            Type.ProductType pointerProductType = new Type.ProductType(RESULT, RESULT);
+            // Create a function type from the product type and with a result of boolean, similar to `Predefined.java`
+            Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
+            // Add _=_ and _!=_ operators to the current scope
+            currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
+            currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
         :}
     ;
 

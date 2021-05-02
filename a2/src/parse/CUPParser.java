@@ -927,7 +927,12 @@ class CUP$CUPParser$actions {
 		Location typexright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.peek()).xright;
 		Type type = (Type)((java_cup.runtime.Symbol) CUP$CUPParser$stack.peek()).value;
 		
-            RESULT = new Type.PointerType(pointerxleft, type);
+            RESULT = new Type.PointerType(pointerxleft, type); // Initialise a pointer type
+            Type.ProductType pointerProductType = new Type.ProductType(RESULT,
+                    RESULT);
+            Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
+            currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
+            currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
         
               CUP$CUPParser$result = parser.getSymbolFactory().newSymbol("PointerType",13, ((java_cup.runtime.Symbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)), ((java_cup.runtime.Symbol)CUP$CUPParser$stack.peek()), RESULT);
             }
