@@ -481,6 +481,50 @@ public abstract class ExpNode {
     }
 
     /**
+     * A reference node that will get the value of a record when `x.y` is called.
+     * It will not return the address unless the `x` is a pointer to a record type
+     */
+    public static class RecordNode extends ExpNode {
+        /**
+         * LValue to reference
+         */
+        private  List<ExpNode> expList;
+
+        /* The type of the Reference node is the base type of the type
+         * of the expression being referenced.
+         */
+        public RecordNode(Location loc, Type type, List<ExpNode> expList) {
+            super(loc, type);
+            this.type = type;
+            this.expList = expList;
+        }
+
+        public List<ExpNode> getExpList() {
+            return this.expList;
+        }
+
+        public void setExpList( List<ExpNode> newList) {
+            this.expList = newList;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            return visitor.visitRecordNode(this);
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            return visitor.visitRecordNode(this);
+        }
+
+        @Override
+        public String toString() {
+            return "Record{" + this.expList + "}";
+        }
+
+    }
+
+    /**
      * Tree node representing a coercion that narrows a subrange
      */
     public static class NarrowSubrangeNode extends ExpNode {

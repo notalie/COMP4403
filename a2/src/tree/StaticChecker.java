@@ -422,6 +422,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     public ExpNode visitPointerNode(ExpNode.PointerNode node) {
         beginCheck("PointerNode"); // e.g. a^
         ExpNode lVal = node.getLeftValue().transform(this);
+        lVal.setType(lVal.getType().resolveType()); // Resolve the type of the left
         node.setLeftValue(lVal);
 
         Type.PointerType type = lVal.getType().getPointerType();
@@ -432,7 +433,6 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         } else {
             node.setType(type.getBaseType()); // dereference the type that was being pointed to
             node.setType(new Type.ReferenceType(node.getType())); // make it a reference type
-            node.getType().resolveType();
         }
         endCheck("PointerNode");
         return node;
@@ -489,6 +489,50 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         }
 
         endCheck("Reference");
+        return node;
+    }
+
+    /**
+     * Static checker for a record node that is initialised with {}
+     */
+    public ExpNode visitRecordNode(ExpNode.RecordNode node) {
+        node.setType(node.getType().resolveType()); // Resolve type
+        if (node.getType().getRecordType() == null) { // Not a record type. Give error?
+            staticError("must be a record type",
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        } else if (node.getType().getRecordType().getFieldList().size() != node.getExpList().size()) {
+            staticError("incorrect number of record types",
+                    node.getLocation());
+            node.setType(Type.ERROR_TYPE);
+        }
+        // Need to transform and parse each parameter in case of recursive record nodes
+        List<ExpNode> newList = new ArrayList<>();
+        // Get field list of the record to copmare
+        List<Type.Field> fieldList = node.getType().getRecordType().getFieldList();
+
+        for (int i = 0; i < node.getExpList().size(); i++) {
+            ExpNode f = node.getExpList().get(i);
+            ExpNode newNode = f.transform(this); // Transform and resolve type
+            newNode.setType(newNode.getType().resolveType());
+            // Coerce any reference nodes otherwise I end up with the address
+            if (newNode.getType() instanceof Type.ReferenceType) {
+                Type baseType = ((Type.ReferenceType) newNode.getType()).getBaseType();
+                newNode = baseType.coerceExp(newNode);
+            }
+            // If the types are not the same, static error
+            // Need to check if there's already an error in the field list. Edge case of `test-reccon-1-circ`
+            if (fieldList.get(i).getType() != newNode.getType() && fieldList.get(i).getType() != Type.ERROR_TYPE) {
+                staticError("wrong record type, expected " + fieldList.get(i).getType().getName() +
+                                " got " + newNode.getType().getName(),
+                        node.getLocation());
+                node.setType(Type.ERROR_TYPE);
+            }
+            // Add the node to the new list
+            newList.add(newNode);
+        }
+        // Update the exp list with the new resolved types and ExpNodes
+        node.setExpList(newList);
         return node;
     }
 

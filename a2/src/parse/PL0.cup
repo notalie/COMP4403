@@ -659,10 +659,9 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = new ExpNode.NewNode(nxleft, type);
         :}
-    | TypeIdentifier:type LCURLY ExpList RCURLY
+    | TypeIdentifier:type LCURLY ExpList:el RCURLY
        {:
-            // TODO
-            RESULT = new ExpNode.ConstNode(typexleft, type, 0);
+            RESULT = new ExpNode.RecordNode(typexleft, type, el);
        :}
     ;
 

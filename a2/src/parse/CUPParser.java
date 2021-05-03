@@ -927,10 +927,12 @@ class CUP$CUPParser$actions {
 		Location typexright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.peek()).xright;
 		Type type = (Type)((java_cup.runtime.Symbol) CUP$CUPParser$stack.peek()).value;
 		
-            RESULT = new Type.PointerType(pointerxleft, type); // Initialise a pointer type
-            Type.ProductType pointerProductType = new Type.ProductType(RESULT,
-                    RESULT);
+            RESULT = new Type.PointerType(pointerxleft, type); // Create a new pointer type
+            // Create a product type using the new type created
+            Type.ProductType pointerProductType = new Type.ProductType(RESULT, RESULT);
+            // Create a function type from the product type and with a result of boolean, similar to `Predefined.java`
             Type.FunctionType pointerFunctionType = new Type.FunctionType(pointerProductType, Predefined.BOOLEAN_TYPE);
+            // Add _=_ and _!=_ operators to the current scope
             currentScope.addOperator(Operator.EQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
             currentScope.addOperator(Operator.NEQUALS_OP, ErrorHandler.NO_LOCATION, pointerFunctionType);
         
@@ -1639,9 +1641,11 @@ class CUP$CUPParser$actions {
 		Location typexleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-3)).xleft;
 		Location typexright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-3)).xright;
 		Type type = (Type)((java_cup.runtime.Symbol) CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-3)).value;
+		Location elxleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).xleft;
+		Location elxright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).xright;
+		List<ExpNode> el = (List<ExpNode>)((java_cup.runtime.Symbol) CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-1)).value;
 		
-            // TODO
-            RESULT = new ExpNode.ConstNode(typexleft, type, 0);
+            RESULT = new ExpNode.RecordNode(typexleft, type, el);
        
               CUP$CUPParser$result = parser.getSymbolFactory().newSymbol("Factor",30, ((java_cup.runtime.Symbol)CUP$CUPParser$stack.elementAt(CUP$CUPParser$top-3)), ((java_cup.runtime.Symbol)CUP$CUPParser$stack.peek()), RESULT);
             }

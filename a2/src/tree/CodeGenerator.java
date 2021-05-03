@@ -423,6 +423,19 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     }
 
     /**
+     * Record node code generation. Because record nodes can have nested code,
+     * I have to generate each node's code within its own code gen function
+     */
+    public Code visitRecordNode(ExpNode.RecordNode node) {
+        Code code = new Code();
+        // Need to generate code for all the record fields and add them to the code
+        for (ExpNode field : node.getExpList()) {
+            code.append(field.genCode(this)); // if the field is a record, store the address
+        }
+        return code;
+    }
+
+    /**
      * Generating code for an IdentifierNode is invalid because the
      * static checker should have converted all IdentifierNodes to
      * either ConstNodes or VariableNodes.
