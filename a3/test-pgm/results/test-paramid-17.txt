@@ -1,0 +1,10 @@
+Compiling test-paramid-17.pl0
+    11   call p( , b<-true );       // extra comma
+******           ^  Error: PL0 syntax error
+    12   call p( a<-5, b<-true, );  // extra comma
+******                          ^  Error: PL0 syntax error
+Parsing complete
+    11   call p( , b<-true );       // extra comma
+******        ^  Error: no actual parameter for a
+Static semantic analysis complete
+3 errors detected.

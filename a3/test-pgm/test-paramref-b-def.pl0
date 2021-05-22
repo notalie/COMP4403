@@ -1,0 +1,24 @@
+procedure p( x: int <- y, var y: boolean <- x ) = // defaults are global
+  begin
+    write x;
+    if y then
+      write x - 1
+    else
+      write z - 1
+  end;
+
+var
+  y: int;
+  z: int;
+  x: boolean;
+begin
+  y := 105;
+  x := true;
+  z := -99;
+  call p();   // use default expressions 105, 104
+  y := 103;
+  call p( x<-y, y<-x ); // 103, 102
+  x := false;
+  z := 101;
+  call p( x<-z, y<-x )  // 101, 100
+end

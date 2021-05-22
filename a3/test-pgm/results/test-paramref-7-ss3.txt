@@ -1,0 +1,21 @@
+Compiling test-paramref-7-ss3.pl0
+Parsing complete
+     8       call fact( n <- r, r <- n-1 );  // var param must be LValue
+******                                ^  Error: actual parameter type should be ref(int) not int
+     9       call fact( n <- 5, r <- 120 );  // var param must be LValue
+******                               ^  Error: actual parameter type should be ref(int) not int
+    25   call fact( n <- 5, r <- 120 );  // actual var parameter should be LValue
+******                           ^  Error: actual parameter type should be ref(int) not int
+    26   call fact( n <- 5 );       // too few params
+******        ^  Error: no actual parameter for r
+    27   call fact( n <- 5, r <- f, rr <-f ); // too may params
+******                              ^  Error: not a parameter of procedure
+    29   call p( x <- c, y <- f, b <- g );    // type mismatch
+******                ^  Error: actual parameter type should be ref(int) not ref(boolean)
+******                                ^  Error: actual parameter type should be ref(boolean) not ref(int)
+    31   call p( x <- 1, y <- 2, b <- true ); // actual var parameter must be an LValue
+******                ^  Error: actual parameter type should be ref(int) not int
+******                        ^  Error: actual parameter type should be ref(int) not int
+******                                ^  Error: actual parameter type should be ref(boolean) not boolean
+Static semantic analysis complete
+10 errors detected.

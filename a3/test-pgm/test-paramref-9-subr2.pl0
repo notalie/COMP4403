@@ -1,0 +1,14 @@
+type 
+  S = [1..10];
+procedure p( n: S, m: int, var r: S, var x: int ) =
+  begin
+    r := n+1;
+    x := m+1
+  end;
+var
+  s: S;
+  y: int;
+begin
+  call p( n <- 1, m <- 23, r <- y, x <- s );  // invalid var param types
+  write s; write y
+end

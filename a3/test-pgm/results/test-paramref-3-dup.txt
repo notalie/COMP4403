@@ -1,0 +1,11 @@
+Compiling test-paramref-3-dup.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+103
+102
+101
+
+Terminated
+No errors detected.

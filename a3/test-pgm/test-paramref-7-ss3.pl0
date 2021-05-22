@@ -1,0 +1,33 @@
+procedure fact( n: int, var r: int ) =
+  begin
+    if n = 0 then
+      r := 1
+    else
+     begin
+      call fact( n <- n-1, r <- r );
+      call fact( n <- r, r <- n-1 );  // var param must be LValue
+      call fact( n <- 5, r <- 120 );  // var param must be LValue
+      r := r * n
+     end
+  end;
+procedure p( var x: int, var y: int, var b: boolean ) =
+  begin
+    if b then
+      write x
+    else
+      write y
+  end;
+var
+  f: int;
+  g: int;
+  c: boolean;
+begin
+  call fact( n <- 5, r <- 120 );  // actual var parameter should be LValue
+  call fact( n <- 5 );       // too few params
+  call fact( n <- 5, r <- f, rr <-f ); // too may params
+  call p( x <- f, y <- g, b <- c );    // ok 
+  call p( x <- c, y <- f, b <- g );    // type mismatch
+  call p( x <- f, y <- f, b <- c );    // ok
+  call p( x <- 1, y <- 2, b <- true ); // actual var parameter must be an LValue
+  write f
+end

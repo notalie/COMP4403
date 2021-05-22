@@ -1,0 +1,15 @@
+procedure p( var x: int, var y: int ) =
+  begin
+    x := 103;
+    y := 102
+  end;
+var 
+  v: int;
+  w: int;
+begin
+  call p( x <- v, y <- w ); // set v to 103 and w to 102
+  write v; // 103
+  write w; // 102
+  call p( y <- v, x <- v ); // set v to 103 then to 102
+  write v-1  // 101
+end

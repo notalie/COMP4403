@@ -1,0 +1,15 @@
+Compiling test-baseg-static.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+1
+2
+3
+101
+102
+101
+50
+
+Terminated
+No errors detected.

@@ -1,0 +1,23 @@
+Compiling test-paramref-4-err.pl0
+     1 procedure one ( x: int, x: int, var x: int, var x: int ) = // duplicate parameters
+******                         ^  Error: x repeated
+******                                     ^  Error: x repeated
+******                                                 ^  Error: x repeated
+    27   call one(x <- 1,x <- 2,x <- v,x <- w);   // call to invalid proc - shouldn't crash compiler
+******                   ^  Error: x repeated
+******                          ^  Error: x repeated
+******                                 ^  Error: x repeated
+Parsing complete
+    29   call two(x <- b,c <- v,y <- b,d <- w);   // invalid types of all parameters 
+******                 ^  Error: cannot coerce boolean to int
+******                        ^  Error: cannot coerce int to boolean
+******                               ^  Error: actual parameter type should be ref(int) not ref(boolean)
+******                                      ^  Error: actual parameter type should be ref(boolean) not ref(int)
+    32   call two(x <- v,c <- b);       // too few parameters
+******        ^  Error: no actual parameter for y
+******        ^  Error: no actual parameter for d
+    33   call two(x <- v,c <- b,y <- w,d <- b,xx <- b,yy <- v) // too many parameters
+******                                        ^  Error: not a parameter of procedure
+******                                                ^  Error: not a parameter of procedure
+Static semantic analysis complete
+14 errors detected.

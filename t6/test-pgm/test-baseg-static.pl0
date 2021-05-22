@@ -1,0 +1,27 @@
+var x : int;
+var y : int;
+procedure p() =
+    var y : int;
+    procedure q() =
+        begin
+            if x = 2 then
+                call p()
+            else
+                x := x;
+            y := y + 1
+        end;
+    begin
+        y := 100;
+        x := x + 1;
+        write x;
+        if x = 1 then call p() else x := x;
+        if x = 2 then call q() else x := x;
+        if x = 3 then call q() else x := x;
+        write y
+    end;
+begin
+    x := 0;
+    y := 50;
+    call p();
+    write y
+end

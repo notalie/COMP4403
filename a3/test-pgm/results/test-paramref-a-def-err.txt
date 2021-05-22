@@ -1,0 +1,12 @@
+Compiling test-paramref-a-def-err.pl0
+Parsing complete
+     1 procedure p( x: int <- b, var y: boolean <- z ) = // defaults of the wrong type
+******                        ^  Error: cannot coerce boolean to int
+******                                             ^  Error: default expression must be of type ref(boolean)
+     4     y := x-1
+******           ^  Error: cannot coerce int to boolean
+    13   call p( x<-b, y<- z ); // explicit parameters of wrong type
+******              ^  Error: cannot coerce boolean to int
+******                     ^  Error: actual parameter type should be ref(boolean) not ref(int)
+Static semantic analysis complete
+5 errors detected.

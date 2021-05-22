@@ -1,0 +1,15 @@
+procedure p( x: int <- b, var y: boolean <- z ) = // defaults of the wrong type
+  begin
+    write x;
+    y := x-1
+  end;
+
+var
+  y: int;
+  z: int;
+  b: boolean;
+begin
+  call p();   // use default expressions
+  call p( x<-b, y<- z ); // explicit parameters of wrong type
+  call p( x <-y, y<-b )  // explicit parameters of the correct type
+end

@@ -1,0 +1,8 @@
+Compiling test-basei-nested-procs.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+
+Terminated
+No errors detected.

@@ -1,0 +1,7 @@
+Compiling test-paramref-8-subr.pl0
+Parsing complete
+    16   call p( n <- y, m <- s, r <- y, x <-s );  // invalid var param types
+******                                ^  Error: actual parameter type should be ref(S) not ref(int)
+******                                       ^  Error: actual parameter type should be ref(int) not ref(S)
+Static semantic analysis complete
+2 errors detected.

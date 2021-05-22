@@ -1,0 +1,16 @@
+procedure fact( n: int, var r: int ) =
+  begin
+    if n = 0 then
+      r := 1
+    else
+     begin
+      call fact( n <- n-1, r <- r );
+      r := r * n
+     end
+  end;
+var
+  f: int;
+begin
+  call fact( n <- 4, r <- f );
+  write f
+end

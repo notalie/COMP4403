@@ -1,0 +1,12 @@
+Compiling test-paramref-1-assign.pl0
+Parsing complete
+Static semantic analysis complete
+Code generation complete
+Running ...
+104
+103
+102
+101
+
+Terminated
+No errors detected.
