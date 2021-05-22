@@ -204,6 +204,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         // No need to parse anything if there's no former parameters in the procedure being called
         if (formalParams.size() == 0) {
+            if (node.getParams().size() != 0 && formalParams.size() == 0) {
+                for (ExpNode param: node.getParams()) {
+                    staticError("not a parameter of procedure", param.getLocation());
+                }
+            }
             endCheck("Call");
             return;
         }
