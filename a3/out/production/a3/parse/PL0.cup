@@ -151,6 +151,7 @@ non terminal SymEntry.ProcedureEntry ProcedureHead;
 non terminal List<SymEntry.ParamEntry> FormalParamList;
 non terminal SymEntry.ParamEntry FormalParam;
 non terminal List<ExpNode>  ActualParamList;
+non terminal List<ExpNode>  ParamList;
 non terminal List<StatementNode> StatementList;
 non terminal StatementNode    Statement,
                               CompoundStatement;
@@ -370,7 +371,7 @@ ProcedureDef ::= ProcedureHead:procEntry EQUALS Block:b SEMICOLON
     ;
 
 ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
-            LPAREN FormalParamList:pl 
+            LPAREN FormalParamList:fpl
             RPAREN
         {:
             /* Add an entry for the procedure to the current scope */
@@ -384,21 +385,22 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
                 procEntry = new SymEntry.ProcedureEntry(id, idxleft);
                 procEntry.setScope(currentScope);
             }
-            /* Create a new scope for the symbols local to
-             * the procedure. */
+
+            // New scope where the procedure is the parent
             currentScope = currentScope.newScope(procEntry);
             Type.ProcedureType procedureType = procEntry.getType();
 
             List<SymEntry.ParamEntry> params = new ArrayList<SymEntry.ParamEntry>();
-            for (SymEntry.ParamEntry pe : pl) {
+            for (SymEntry.ParamEntry pe : fpl) {
                 SymEntry entry = currentScope.addEntry(pe);
                 if (entry == null) { // check for any repeats
                     errors.error(pe.getIdent() + " repeated", pe.getLocation());
+                } else {
+                    params.add(pe); // add the param to the list if it is not repeated
                 }
-                params.add(pe);
             }
+            procedureType.setFormalParams(params); // change the parameters at the end
 
-            procedureType.setFormalParams(params);
             RESULT = procEntry;
         :}
     |  KW_PROCEDURE IDENTIFIER:id error
@@ -429,16 +431,16 @@ FormalParamList ::= FormalParam:fp
         :}
     | /* Empty */
         {:
-            RESULT = new ArrayList<SymEntry.ParamEntry>();;
+            RESULT = new ArrayList<SymEntry.ParamEntry>();
         :}
     ;
 
 FormalParam ::= IDENTIFIER:id COLON TypeIdentifier:ti OptCond:oc
         {:
             // define a new param entry, not a reference type as it is not defined within the scope
-             SymEntry.ParamEntry param = new SymEntry.ParamEntry(id, idxleft, ti, false, oc);
-             param.setScope(currentScope);
-             RESULT = param;
+            SymEntry.ParamEntry param = new SymEntry.ParamEntry(id, idxleft, ti, false, oc);
+            param.setScope(currentScope);
+            RESULT = param;
         :}
     | KW_VAR IDENTIFIER:id COLON TypeIdentifier:ti OptLval:olv
         {:
@@ -513,36 +515,42 @@ Statement ::= KW_WHILE Condition:c KW_DO Statement:s
        :} 
     |  KW_CALL IDENTIFIER:id LPAREN ActualParamList:pl RPAREN
         {:
-            HashSet<String> params = new HashSet<String>();
+            HashSet<String> paramsIds = new HashSet<String>();
             for (ExpNode p : pl) {
                 ExpNode.ActualParamNode param = (ExpNode.ActualParamNode)p;
-                if (params.contains(param.getId())) { // check for repeats
+                if (paramsIds.contains(param.getId())) { // check for repeats
                     errors.error(param.getId() + " repeated", param.getLocation());
                 }
-                params.add(param.getId());
+                paramsIds.add(param.getId());
             }
             RESULT = new StatementNode.CallNode(idxleft, id, pl);
         :}
-    |  error:loc
-        {: 
-            RESULT = new StatementNode.ErrorNode(locxleft);
+    |  error:e
+        {:
+            RESULT = new StatementNode.ErrorNode(exleft);
         :}
     ;
 
-ActualParamList ::= ActualParam:ap
+ActualParamList ::= ParamList:pl
         {:
-            RESULT = new ArrayList<ExpNode>();
-            RESULT.add(ap);
-
-        :}
-    | ActualParamList:apl COMMA ActualParam:ap
-        {:
-            apl.add(ap);
-            RESULT = apl;
+            RESULT = pl;
         :}
     | /* Empty - use default */
         {:
             RESULT = new ArrayList<ExpNode>();
+        :}
+    ;
+
+/* Had to split it into a ParamList to pass tests where the first parameter was empty (, param) */
+ParamList ::= ActualParam:ap
+        {:
+            RESULT = new ArrayList<ExpNode>();
+            RESULT.add(ap);
+        :}
+    | ParamList:apl COMMA ActualParam:ap
+        {:
+            apl.add(ap);
+            RESULT = apl;
         :}
     ;
 

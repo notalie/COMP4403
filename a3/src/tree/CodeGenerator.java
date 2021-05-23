@@ -3,7 +3,6 @@ package tree;
 import java.util.*;
 
 import machine.Operation;
-import machine.StackMachine;
 import source.Errors;
 import source.VisitorDebugger;
 import syms.Scope;
@@ -163,60 +162,6 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         code.append(node.getExp().genCode(this));
         code.generateOp(Operation.WRITE);
         endGen("Write");
-        return code;
-    }
-
-    /**
-     * Generate code for a "call" statement.
-     */
-    public Code visitCallNode(StatementNode.CallNode node) {
-        beginGen( "Call" );
-        SymEntry.ProcedureEntry proc = node.getEntry();
-        Type.ProcedureType procedureType =  proc.getType();
-        Scope localScope = proc.getLocalScope();
-        Code code = new Code();
-
-        // use negative offset, start with the smallest value for the first parameter etc etc.
-        int offset = -(procedureType.getFormalParams().size());
-
-        for (SymEntry.ParamEntry paramEntry: procedureType.getFormalParams()) {
-            boolean found = false;
-            boolean isVarType = false;
-
-            for (ExpNode passedInParam: node.getParams()) {
-                ExpNode.ActualParamNode paramNode = (ExpNode.ActualParamNode) passedInParam;
-                // Found matching params for the actual and former
-                if (paramEntry.getIdent().equals(paramNode.getId())) {
-                    found = true;
-                    code.append(paramNode.genCode(this));
-                    if (paramNode.getCondition() instanceof ExpNode.VariableNode) {
-                        isVarType = true;
-                    }
-                }
-            }
-
-            if (!found) { // Use default/former parameter because there is no actual parameter
-                code.append(paramEntry.getDefaultExp().genCode(this));
-            }
-
-            // Load absolute value instead of the normal negative value
-            if (paramEntry.getDefaultExp() instanceof ExpNode.VariableNode || isVarType) {
-                if (node.getParams().size() == 0) { // No default values were passed in
-                    code.generateOp(Operation.LOAD_ABS); // Use absolute values of the default params
-                } else {
-                    code.generateOp(Operation.TO_LOCAL); // Convert local variable to global variable
-                }
-            }
-
-            // increment the offset to use by 1, make it less negative
-            paramEntry.setOffset(offset++);
-        }
-
-
-        code.genCall(staticLevel - proc.getLevel(), proc);
-        int paramValueSize = localScope.getParameterSpace();
-        code.genDeallocStack(paramValueSize); // dealloc the stack
-        endGen("Call");
         return code;
     }
 
@@ -415,6 +360,56 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return null;
     }
 
+
+    /**
+     * Generate code for a "call" statement.
+     */
+    public Code visitCallNode(StatementNode.CallNode node) {
+        beginGen( "Call" );
+        SymEntry.ProcedureEntry proc = node.getEntry();
+        Type.ProcedureType procedureType =  proc.getType();
+        Scope localScope = proc.getLocalScope();
+        Code code = new Code();
+
+        // use negative offset, start with the smallest value for the first parameter etc etc.
+        int paramOffset = -(procedureType.getFormalParams().size());
+
+        for (SymEntry.ParamEntry paramEntry: procedureType.getFormalParams()) {
+            boolean found = false;
+            ExpNode.ActualParamNode paramNode = null;
+
+            for (ExpNode passedInParam: node.getParams()) {
+                paramNode = (ExpNode.ActualParamNode) passedInParam;
+                // Found matching params for the actual and former
+                if (paramEntry.getIdent().equals(paramNode.getId())) {
+                    found = true;
+                    code.append(paramNode.genCode(this));
+                    break; // no need to keep going
+                }
+            }
+
+            if (!found) { // Use former default parameter because there is no actual parameter
+                code.append(paramEntry.getDefaultExp().genCode(this));
+            }
+
+            if (paramEntry.getDefaultExp() instanceof ExpNode.VariableNode) {
+                if (node.getParams().size() == 0) { // No default values were passed in
+                    // Use absolute value instead of global
+                    code.generateOp(Operation.LOAD_ABS);
+                } else {
+                    // Convert to a global address because it's defined outside of the scope/not in this scope
+                    code.generateOp(Operation.TO_GLOBAL);
+                }
+            }
+            // increment the offset to use by 1, make it less negative(?)
+            paramEntry.setOffset(paramOffset++);
+        }
+        code.genCall(staticLevel - proc.getLevel(), proc);
+        code.genDeallocStack(localScope.getParameterSpace()); // dealloc the stack
+        endGen("Call");
+        return code;
+    }
+
     /**
      * Generate code for a variable reference.
      * It pushes the address of the variable as an offset from the frame pointer
@@ -458,8 +453,14 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
      * Returns code generated by the condition for the actual node
      */
     public Code visitActualParamNode(ExpNode.ActualParamNode node) {
-        // Gen code for the acutal param node
-        return node.getCondition().genCode(this);
+        beginGen("ActualParamNode");
+        Code code = new Code();
+
+        // Gen code for the actual param node
+        code.append(node.getCondition().genCode(this));
+
+        endGen("ActualParamNode");
+        return code;
     }
     //**************************** Support Methods
 
