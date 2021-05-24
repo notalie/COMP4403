@@ -374,33 +374,41 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // use negative offset, start with the smallest value for the first parameter etc etc.
         int paramOffset = -(procedureType.getFormalParams().size());
 
-        for (SymEntry.ParamEntry paramEntry: procedureType.getFormalParams()) {
-            boolean found = false; // Need this for finding a node
-            for (ExpNode passedInParam: node.getParams()) {
-                // Cast for checking ids
-                ExpNode.ActualParamNode paramNode = (ExpNode.ActualParamNode) passedInParam;
-                // Found matching params for the actual and former
-                if (paramEntry.getIdent().equals(paramNode.getId())) {
-                    found = true;
-                    code.append(paramNode.genCode(this));
-                    break; // no need to keep going, there was a match
-                }
-            }
+        for (int i = node.getParams().size() - 1; i >= 0; i--) {
+            ExpNode.ActualParamNode paramEntry = (ExpNode.ActualParamNode) node.getParams().get(i);
+            code.append(paramEntry.genCode(this));
+//            code.genLoadConstant(200);
+//            boolean found = false; // Need this for finding a node so I know when to use a default parameter instead
+//            for (ExpNode passedInParam: node.getParams()) {
+//                // Cast for checking ids and generating code
+//                ExpNode.ActualParamNode paramNode = (ExpNode.ActualParamNode) passedInParam;
+//                // Found matching params for the actual and former
+//                if (paramEntry.getIdent().equals(paramNode.getId())) {
+//                    found = true; // indicate that the default expression doesn't need to be used
+//                    code.append(paramNode.genCode(this));
+//                    break; // no need to keep going, there was a match
+//                }
+//            }
             // Use former default parameter because there is no actual parameter/couldn't find a matching parameter
-            if (!found) {
-                code.append(paramEntry.getDefaultExp().genCode(this));
+//            if (!found) {
+//                code.append(paramEntry.getDefaultExp().genCode(this));
+//                if (paramEntry.getDefaultExp() instanceof ExpNode.VariableNode) {
+//                    // No default values were passed in, use absolute value of address instead
+//                    if (node.getParams().size() == 0) {
+//                        code.generateOp(Operation.LOAD_ABS);
+//                    } else { // Convert to a global address because it's defined outside of the scope/not in this scope
+//                        code.generateOp(Operation.TO_GLOBAL);
+//                    }
+//                }
+//            }
+            SymEntry.ParamEntry entryParam = proc.getType().getFormalParams().get(i);
+            if (entryParam.isRef()) {
+                code.generateOp(Operation.TO_GLOBAL);
+            } else if (entryParam.getDefaultExp() instanceof ExpNode.VariableNode) {
+                code.generateOp(Operation.LOAD_ABS);
             }
-
-            if (paramEntry.getDefaultExp() instanceof ExpNode.VariableNode) {
-                if (node.getParams().size() == 0) { // No default values were passed in, use absolute value of address
-                    code.generateOp(Operation.LOAD_ABS);
-                } else {
-                    // Convert to a global address because it's defined outside of the scope/not in this scope
-                    code.generateOp(Operation.TO_GLOBAL);
-                }
-            }
-            // increment the offset to use by 1, make it less negative
-            paramEntry.setOffset(paramOffset++);
+            // increment the offset to use by 1/make it less negative
+            entryParam.setOffset(paramOffset++);
         }
         code.genCall(staticLevel - proc.getLevel(), proc);
         code.genDeallocStack(localScope.getParameterSpace()); // dealloc the stack
@@ -416,7 +424,13 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         beginGen("Variable");
         SymEntry.VarEntry var = node.getVariable();
         Code code = new Code();
-        code.genMemRef(staticLevel - var.getLevel(), var.getOffset());
+        if (var instanceof SymEntry.ParamEntry && ((SymEntry.ParamEntry) var).isRef()) {
+            code.genLoadConstant(var.getOffset());
+            code.generateOp(Operation.LOAD_FRAME);
+            code.generateOp(Operation.TO_LOCAL);
+        } else {
+            code.genMemRef(staticLevel - var.getLevel(), var.getOffset());
+        }
         endGen("Variable");
         return code;
     }
@@ -453,10 +467,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     public Code visitActualParamNode(ExpNode.ActualParamNode node) {
         beginGen("ActualParamNode");
         Code code = new Code();
-
-        // Gen code for the actual param node
+        // Gen code for the condition of the actual param node
         code.append(node.getCondition().genCode(this));
-
         endGen("ActualParamNode");
         return code;
     }

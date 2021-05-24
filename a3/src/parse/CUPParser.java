@@ -880,7 +880,7 @@ class CUP$CUPParser$actions {
 
             List<SymEntry.ParamEntry> params = new ArrayList<SymEntry.ParamEntry>();
             for (SymEntry.ParamEntry pe : fpl) {
-                if (!(pe.getIdent().equals("error"))) { // hardcoded string because I can't change the SymEntry
+                if (pe != null) { // null represents an error node
                     SymEntry entry = currentScope.addEntry(pe);
                     if (entry == null) { // check for any repeats
                         errors.error(pe.getIdent() + " repeated", pe.getLocation());
@@ -1016,11 +1016,8 @@ class CUP$CUPParser$actions {
 		Location exleft = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.peek()).xleft;
 		Location exright = ((java_cup.runtime.ComplexSymbolFactory.ComplexSymbol)CUP$CUPParser$stack.peek()).xright;
 		Object e = (Object)((java_cup.runtime.Symbol) CUP$CUPParser$stack.peek()).value;
-		  // Make an 'error node' for any wrong formal parameters, don't set or add to scope,
-            // string is hardcoded because I'm not allowed to touch SymEntry
-            // and needed something to represent an error type
-            SymEntry.ParamEntry param = new SymEntry.ParamEntry("error", exleft, Type.ERROR_TYPE, false);
-            RESULT = param;
+		  // return `null` as our error node because I can't modify paramEntry
+            RESULT = null;
         
               CUP$CUPParser$result = parser.getSymbolFactory().newSymbol("FormalParam",16, ((java_cup.runtime.Symbol)CUP$CUPParser$stack.peek()), ((java_cup.runtime.Symbol)CUP$CUPParser$stack.peek()), RESULT);
             }

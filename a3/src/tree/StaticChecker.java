@@ -80,10 +80,13 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
                 Type paramType = paramEntry.getType().optDereferenceType();
                 Type defaultType = defaultParam.getType().optDereferenceType();
+
                 if (paramEntry.isRef() && paramType != defaultType) {
                     // Check that the reference types refer to the same dereference type
-                    staticError("default expression must be of type " + paramEntry.getType(), defaultParam.getLocation());
+                    staticError("default expression must be of type " + paramEntry.getType(),
+                            defaultParam.getLocation());
                 } else if (paramType != defaultType) {
+                    // Varying static errors depending on if ref or not
                     staticError("cannot coerce " + defaultType + " to " + paramType, defaultParam.getLocation());
                 }
 
@@ -231,15 +234,19 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         // Formal params to change for the procedure before passing in
         HashMap<String, ExpNode.ActualParamNode> newFormalParams = new HashMap<>();
+
         // Check each actual parameter
         for (ExpNode p: node.getParams()) {
             boolean found = false;
+
+            // Ignore Error nodes
             if (p instanceof ExpNode.ErrorNode) {
                 continue;
             }
 
             // Change the values in the parameters
-            ExpNode.ActualParamNode param = (ExpNode.ActualParamNode)p.transform(this);
+            p.transform(this);
+            ExpNode.ActualParamNode param = (ExpNode.ActualParamNode)p;
             // For checking if all defaults are covered + setting the transformed default expressions in the node
             newFormalParams.put(param.getId(), param);
 
@@ -248,18 +255,13 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 // Found a matching identifier within the scope
                 if (paramEntry.getIdent().equals(param.getId())) {
                     found = true; // Found the default parameter
-                    param.transform(this);
-
-                    // transform the actual param's condition
-                    param.setCondition(param.getCondition().transform(this));
 
                     // get two dereference types from given
                     Type formalParamType = se.getType().optDereferenceType();
                     Type paramType = param.getCondition().getType().optDereferenceType();
 
                     try {
-                        ExpNode cond = formalParamType.coerceToType(param.getCondition());
-                        param.setCondition(cond);
+                        formalParamType.coerceToType(param.getCondition());
                     } catch (Type.IncompatibleTypes e) { // couldn't coerce
                         if (paramEntry.isRef()) { // Differing static error messages,
                             // wasn't sure how to get the ref( part of the string showing so I did it manually sorry ;/
@@ -283,16 +285,22 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 staticError("not a parameter of procedure", param.getLocation());
             }
         }
-
-        node.setParams(new ArrayList<>(newFormalParams.values()));
+        // Set the params as the new transformed values
+        List<ExpNode> newList = new ArrayList<>();
 
         // Need to make sure that every former parameter has been covered in the previous for loop
-        // if there was no specified default expression to cover it
+        // give static error if there is an id that was not transformed that doesn't have a default
         for (SymEntry.ParamEntry paramEntry : formalParams) {
-            if (!(newFormalParams.containsKey(paramEntry.getIdent())) && paramEntry.getDefaultExp() == null) {
+            if (newFormalParams.containsKey(paramEntry.getIdent())) {
+                newList.add(newFormalParams.get(paramEntry.getIdent()));
+            } else if (paramEntry.getDefaultExp() != null) {
+                newList.add(new ExpNode.ActualParamNode(paramEntry.getLocation(), paramEntry.getIdent(),
+                        paramEntry.getDefaultExp().transform(this)));
+            } else {
                 staticError("no actual parameter for " + paramEntry.getIdent(), node.getLocation());
             }
         }
+        node.setParams(newList);
         endCheck("Call");
     }
 
