@@ -77,6 +77,16 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 // Need to coerce the default expression because I'm not sure if it's done in the transform method
                 ExpNode defaultParam = paramEntry.getDefaultExp().transform(this);
                 defaultParam.setType(defaultParam.getType().resolveType());
+
+                Type paramType = paramEntry.getType().optDereferenceType();
+                Type defaultType = defaultParam.getType().optDereferenceType();
+                if (paramEntry.isRef() && paramType != defaultType) {
+                    // Check that the reference types refer to the same dereference type
+                    staticError("default expression must be of type " + paramEntry.getType(), defaultParam.getLocation());
+                } else if (paramType != defaultType) {
+                    staticError("cannot coerce " + defaultType + " to " + paramType, defaultParam.getLocation());
+                }
+
                 paramEntry.setDefaultParam(defaultParam);
             }
             localScope.addEntry(paramEntry); // add entry to the local scope
