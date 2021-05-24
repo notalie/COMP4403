@@ -261,6 +261,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                     Type paramType = param.getCondition().getType().optDereferenceType();
 
                     try {
+                        // Check if the condition can be coerced to the formalParamType
                         formalParamType.coerceToType(param.getCondition());
                     } catch (Type.IncompatibleTypes e) { // couldn't coerce
                         if (paramEntry.isRef()) { // Differing static error messages,
@@ -273,7 +274,8 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                         }
                         continue; // To ignore the error checking below
                     }
-                    // If actual parameter is a ref and ref types aren't the same, give a static error
+                    // If actual parameter is a ref and ref types aren't the same,
+                    // but coercion was successful, give a static error
                     if (paramEntry.isRef() && paramType != formalParamType) {
                         staticError("actual parameter type should be " + se.getType() +
                                 " not ref(" + paramType.getName() + ")", param.getCondition().getLocation());
