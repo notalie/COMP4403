@@ -198,6 +198,8 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             node.setEntry(procEntry);
         } else {
             staticError("Procedure identifier required", node.getLocation());
+            endCheck("Call");
+            return;
         }
         // Get the type of procedure from the sym entry
         Type.ProcedureType procedureType = procEntry.getType();
@@ -222,6 +224,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         // Check each actual parameter
         for (ExpNode p: node.getParams()) {
             boolean found = false;
+            if (p instanceof ExpNode.ErrorNode) {
+                continue;
+            }
+
             // Change the values in the parameters
             ExpNode.ActualParamNode param = (ExpNode.ActualParamNode)p.transform(this);
             // For checking if all defaults are covered + setting the transformed default expressions in the node

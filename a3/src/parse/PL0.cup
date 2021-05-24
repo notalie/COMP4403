@@ -167,7 +167,7 @@ non terminal Operator         Relation,
 non terminal ExpNode          LValue;
 non terminal ExpNode          OptCond,
                               OptLval;
-non terminal ExpNode.ActualParamNode ActualParam;
+non terminal ExpNode          ActualParam;
 
 
 /**-------------------------------------------------------------
@@ -392,11 +392,13 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
 
             List<SymEntry.ParamEntry> params = new ArrayList<SymEntry.ParamEntry>();
             for (SymEntry.ParamEntry pe : fpl) {
-                SymEntry entry = currentScope.addEntry(pe);
-                if (entry == null) { // check for any repeats
-                    errors.error(pe.getIdent() + " repeated", pe.getLocation());
-                } else {
-                    params.add(pe); // add the param to the list if it is not repeated
+                if (!(pe.getIdent().equals("error"))) { // hardcoded string because I can't change the SymEntry
+                    SymEntry entry = currentScope.addEntry(pe);
+                    if (entry == null) { // check for any repeats
+                        errors.error(pe.getIdent() + " repeated", pe.getLocation());
+                    } else {
+                        params.add(pe); // add the param to the list if it is not repeated
+                    }
                 }
             }
             procedureType.setFormalParams(params); // change the parameters at the end
@@ -447,6 +449,13 @@ FormalParam ::= IDENTIFIER:id COLON TypeIdentifier:ti OptCond:oc
             // define as a reference as it is a formal parameter and defined within the local scope
             SymEntry.ParamEntry param = new SymEntry.ParamEntry(id, idxleft, ti, true, olv);
             param.setScope(currentScope);
+            RESULT = param;
+        :}
+    | error:e
+        {:  // Make an 'error node' for any wrong formal parameters, don't set or add to scope,
+            // string is hardcoded because I'm not allowed to touch SymEntry
+            // and needed something to represent an error type
+            SymEntry.ParamEntry param = new SymEntry.ParamEntry("error", exleft, Type.ERROR_TYPE, false);
             RESULT = param;
         :}
     ;
@@ -517,11 +526,13 @@ Statement ::= KW_WHILE Condition:c KW_DO Statement:s
         {:
             HashSet<String> paramsIds = new HashSet<String>();
             for (ExpNode p : pl) {
-                ExpNode.ActualParamNode param = (ExpNode.ActualParamNode)p;
-                if (paramsIds.contains(param.getId())) { // check for repeats
-                    errors.error(param.getId() + " repeated", param.getLocation());
+                if (p instanceof ExpNode.ActualParamNode) {
+                    ExpNode.ActualParamNode param = (ExpNode.ActualParamNode)p;
+                    if (paramsIds.contains(param.getId())) { // check for repeats
+                        errors.error(param.getId() + " repeated", param.getLocation());
+                    }
+                    paramsIds.add(param.getId());
                 }
-                paramsIds.add(param.getId());
             }
             RESULT = new StatementNode.CallNode(idxleft, id, pl);
         :}
@@ -557,6 +568,10 @@ ParamList ::= ActualParam:ap
 ActualParam ::= IDENTIFIER:id GETS Condition:cond
         {:
             RESULT = new ExpNode.ActualParamNode(idxleft, id, cond);
+        :}
+    | error:e
+        {:
+            RESULT = new ExpNode.ErrorNode(exleft);
         :}
     ;
 

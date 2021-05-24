@@ -375,33 +375,31 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         int paramOffset = -(procedureType.getFormalParams().size());
 
         for (SymEntry.ParamEntry paramEntry: procedureType.getFormalParams()) {
-            boolean found = false;
-            ExpNode.ActualParamNode paramNode = null;
-
+            boolean found = false; // Need this for finding a node
             for (ExpNode passedInParam: node.getParams()) {
-                paramNode = (ExpNode.ActualParamNode) passedInParam;
+                // Cast for checking ids
+                ExpNode.ActualParamNode paramNode = (ExpNode.ActualParamNode) passedInParam;
                 // Found matching params for the actual and former
                 if (paramEntry.getIdent().equals(paramNode.getId())) {
                     found = true;
                     code.append(paramNode.genCode(this));
-                    break; // no need to keep going
+                    break; // no need to keep going, there was a match
                 }
             }
-
-            if (!found) { // Use former default parameter because there is no actual parameter
+            // Use former default parameter because there is no actual parameter/couldn't find a matching parameter
+            if (!found) {
                 code.append(paramEntry.getDefaultExp().genCode(this));
             }
 
             if (paramEntry.getDefaultExp() instanceof ExpNode.VariableNode) {
-                if (node.getParams().size() == 0) { // No default values were passed in
-                    // Use absolute value instead of global
+                if (node.getParams().size() == 0) { // No default values were passed in, use absolute value of address
                     code.generateOp(Operation.LOAD_ABS);
                 } else {
                     // Convert to a global address because it's defined outside of the scope/not in this scope
                     code.generateOp(Operation.TO_GLOBAL);
                 }
             }
-            // increment the offset to use by 1, make it less negative(?)
+            // increment the offset to use by 1, make it less negative
             paramEntry.setOffset(paramOffset++);
         }
         code.genCall(staticLevel - proc.getLevel(), proc);
